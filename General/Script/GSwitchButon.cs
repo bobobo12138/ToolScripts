@@ -19,7 +19,14 @@ public class GSwitchButon : MonoBehaviour
     Action ClickTrunOff;
     private void Start()
     {
-        Button.onClick.AddListener(Trigger);
+        if (Button != null)
+        {
+            Button.onClick.AddListener(Trigger);
+        }
+        else
+        {
+            Debug.LogError("GButton»±…Ÿ∞¥≈•");
+        }
     }
 
     /// <summary>
