@@ -53,6 +53,7 @@ public class GObjPool<T> where T : MonoBehaviour
     /// <param name="obj"></param>
     public void RecycleObj(T obj)
     {
+        if (obj == prototype) return;//不能回收原型
         if (pool.Contains(obj)) return;
         if (obj.transform.parent != parent)
             obj.transform.SetParent(parent);
