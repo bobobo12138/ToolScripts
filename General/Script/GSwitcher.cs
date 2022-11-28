@@ -11,7 +11,10 @@ public class GSwitcher : MonoBehaviour
 
     private void Awake()
     {
-        Init();
+        if (switcherKeyValuePairs == null)
+        {
+            Init();
+        }
     }
     /// <summary>
     /// 手动初始化
