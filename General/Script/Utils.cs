@@ -83,120 +83,6 @@ public class Utils
     }
 
     /// <summary>
-    /// 得到【屏幕外物体位置到屏幕中心的连线】与屏幕边界的交点，无死角。
-    /// </summary>
-    /// <param name="x">物体X坐标</param>
-    /// <param name="y">物体Y坐标</param>
-    /// <param name="width">屏幕宽度</param>
-    /// <param name="height">屏幕高度</param>
-    /// <returns></returns>
-    public static Vector2 CalculateIntersectionBetter(float x, float y, float width, float height)
-    {
-        Vector2 position = new Vector2();
-        if (CheckInView(x, y, width, height))
-        {
-            position.x = x;
-            position.y = y;
-
-            return position;
-        }
-
-        float aspectRatio = height / width;
-        float relativeY = y - height / 2;
-        float relativeX = x - width / 2;
-
-        relativeX = relativeX == 0 ? 0.01f : relativeX;//GetSafeFloatDivisor ： return value = value == 0 ? 0.01f : value;
-
-        float k = relativeY / relativeX;
-
-        /*
-         * 
-         *                    |
-         *           2        |        3
-         *                    |
-         *                    |
-         *                    |
-         *    1               |               4
-         *                    |
-         *                    |
-         *————————————————————|————————————————————h/2
-         *                    |
-         *                    |
-         *    8               |               5
-         *                    |
-         *                    |
-         *                    |
-         *           7        |        6
-         *                    |
-         *                   w/2
-         * 
-         *
-         * 8=1  2=3  4=5  6=7
-         */
-
-        if (y > height / 2)
-        {
-            if (x < width / 2)
-            {
-                if (-aspectRatio < k)   //1
-                {
-                    position.x = 0;
-                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (width / 2 - x);
-                }
-                else                    //2
-                {
-                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (y - height / 2);
-                    position.y = height;
-                }
-            }
-            else
-            {
-                if (aspectRatio < k)    //3
-                {
-                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (y - height / 2);
-                    position.y = height;
-                }
-                else                    //4
-                {
-                    position.x = width;
-                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (x - width / 2);
-                }
-            }
-        }
-        else
-        {
-            if (x > width / 2)
-            {
-                if (-aspectRatio < k)   //5
-                {
-                    position.x = width;
-                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (x - width / 2);
-                }
-                else                    //6
-                {
-                    position.y = 0;
-                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (height / 2 - y);
-                }
-            }
-            else
-            {
-                if (aspectRatio < k)    //7
-                {
-                    position.y = 0;
-                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (height / 2 - y);
-                }
-                else                    //8
-                {
-                    position.x = 0;
-                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (width / 2 - x);
-                }
-            }
-        }
-
-        return position;
-    }
-
-    /// <summary>
     /// 确认目标是否在视野内
     /// </summary>
     /// <param name="x">物体X坐标</param>
@@ -483,7 +369,7 @@ public class Utils
     /// <param name="numerator"></param>
     /// <param name="denominator"></param>
     /// <returns></returns>
-    public static bool LuckDraw(int numerator,int denominator)
+    public static bool LuckDraw(int numerator, int denominator)
     {
         if (numerator >= denominator) return true;
 
@@ -513,7 +399,7 @@ public class Utils
     /// 取最大值
     /// </summary>
     /// <returns></returns>
-    public static float GetMax(float v1,float v2)
+    public static float GetMax(float v1, float v2)
     {
         if (v1 > v2)
         {
@@ -577,11 +463,51 @@ public class Utils
         Vector.x = 1;
         Vector.y = 0;
 
-        Vector.x = 1 * Mathf.Cos(Mathf.PI/180 * degrees);
+        Vector.x = 1 * Mathf.Cos(Mathf.PI / 180 * degrees);
         Vector.y = 1 * Mathf.Sin(Mathf.PI / 180 * degrees);
 
         return Vector;
     }
 
+    /// <summary>
+    /// 比例计算器
+    /// 参考者，被计算者，变化量or
+    /// 分子，分母，变量
+    /// </summary>
+    public static float ProportionCounter(float molecule, float denominator, float v)
+    {
+        return (molecule / denominator) * v;
+    }
+
+    /// <summary>
+    /// 宽高限定计算器
+    /// </summary>
+    /// <param name="user">使用者</param>
+    /// <param name="max">最大</param>
+    /// <returns></returns>
+    public static Vector2 WHSizelimit(Vector2 user, Vector2 max)
+    {
+        float pro = 1;
+        if (user.x > max.x)
+        {
+            pro = max.x / user.x;
+        }
+        else if (user.y > max.y)
+        {
+            pro = max.y / user.y;
+        }
+        return new Vector2(user.x * pro, user.y * pro);
+    }
+
+    /// <summary>
+    /// 字符串转枚举
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static T ToEnum<T>(string str)
+    {
+        return (T)System.Enum.Parse(typeof(T), str);
+    }
 }
 
