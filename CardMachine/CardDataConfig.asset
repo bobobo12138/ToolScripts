@@ -12,4 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83e9d3d8a427d894485e4e69d9de908b, type: 3}
   m_Name: CardDataConfig
   m_EditorClassIdentifier: 
-  cardDatas: []
+  cardDatas:
+  - ID: 0
+    name: 
+    cardTyple: 0
+    default_P_Weight: 0
+    animationCurve_P_Weight:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 0
+      m_PostInfinity: 0
+      m_RotationOrder: 0

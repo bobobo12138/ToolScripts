@@ -14,7 +14,7 @@ public class SingleCardData
     [Header("默认概率权重，0-100")]
     [Range(0, 100)]
     public float default_P_Weight;
-    [Header("几率权重曲线，Y为输出，X为输入")]
+    [Header("几率权重曲线，Y为输出，X为输入（x可以看成等级，概率随等级而变化）")]
     public AnimationCurve animationCurve_P_Weight;
     ///某个抽象类，代表抽到的物品
     ///public xxx
