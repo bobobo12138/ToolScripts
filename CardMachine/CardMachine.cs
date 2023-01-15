@@ -58,6 +58,7 @@ public class CardMachine : MonoBehaviour
                 {
                     cardIndexList_final.AddLast(i);
                     weightCount -= v;
+                    cardIndexList_filtered.Remove(v);
                     break;
                 }
                 temp_count += v;
