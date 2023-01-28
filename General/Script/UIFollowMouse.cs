@@ -5,6 +5,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+//public enum DirEnum
+//{
+//    UP,
+//    DOWN,
+//    LEFT,
+//    RIGHT,
+//    FORWARD,
+//    BACK,
+
+
+//    UPDOWN,
+//    LEFTRIGHT,
+//    FORWARDBACK,
+
+
+//    EVERY,
+//}
+
 public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDragHandler
 {
     DirEnum dirEnum;
