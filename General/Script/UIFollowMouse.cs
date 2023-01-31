@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Game.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,14 +24,14 @@ using UnityEngine.EventSystems;
 //    EVERY,
 //}
 
-public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDragHandler
+public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler, IEndDragHandler
 {
     DirEnum dirEnum;
 
-    Vector3 Max;
-    Vector3 Min;
+    Vector2 Max;
+    Vector2 Min;
 
-    Vector3 offset;//偏移修正,被位移者-this
+    Vector2 offset_Follow;//偏移修正,被位移者-this
     bool isAutoOffset;//是否自动修正到最大、最小（接近哪边修正到哪边）
 
     RectTransform uesrRectTrans;
@@ -39,13 +40,32 @@ public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDra
     public Action OnOffsetMax = null;//当自动修正到Max
     public Action OnOffsetMin = null;//当自动修正到Min
 
-    public void SetData(RectTransform _userRectTrans, DirEnum _dirEnum, Vector3 _max, Vector3 _min, Vector3 _offset, bool _isAutoOffset = true)
+    [Header("自动修正范围_Out")]
+    [Range(0.1f, 0.9f)]
+    public float autoOffsetRange_Out = 0.1f;
+
+    Vector2 canvasActiveSize;//canvas实际宽高
+    Vector2 screenRealSize; //屏幕实际宽高、分辨率
+    /// <summary>
+    /// 初始需要setdata
+    /// </summary>
+    /// <param name="_userRectTrans"></param>
+    /// <param name="_dirEnum"></param>
+    /// <param name="_max"></param>
+    /// <param name="_min"></param>
+    /// <param name="_offset_Follow">跟随移动的修正</param>
+    /// <param name="_isAutoOffset"></param>
+    /// <param name="_canvasActiveSize">canvas实际宽高</param>
+    /// <param name="_screenRealSize">屏幕实际宽高</param>
+    public void SetData(RectTransform _userRectTrans, DirEnum _dirEnum, Vector2 _max, Vector2 _min, Vector2 _offset_Follow, Vector2 _canvasActiveSize, Vector2 _screenRealSize, bool _isAutoOffset = true)
     {
         uesrRectTrans = _userRectTrans;
         dirEnum = _dirEnum;
         Max = _max;
         Min = _min;
-        offset = _offset;
+        offset_Follow = _offset_Follow;
+        canvasActiveSize = _canvasActiveSize;
+        screenRealSize = _screenRealSize;
         isAutoOffset = _isAutoOffset;
     }
 
@@ -70,10 +90,10 @@ public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDra
     }
 
     Vector3 tempPos;
-    void SetPos(Vector3 vector)
+    void SetPos(Vector2 vector)
     {
-        //修正
-        vector += offset;
+        vector *= canvasActiveSize / screenRealSize;
+        vector += offset_Follow;//修正
         vector = Vector3.Max(vector, Min);
         vector = Vector3.Min(vector, Max);
         switch (dirEnum)
@@ -108,11 +128,12 @@ public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDra
     }
 
     Vector3 midPos;
-    void OffsetPos(Vector3 vector)
+    void OffsetPos(Vector2 vector)
     {
-        vector += offset;//修正
-        midPos = (Min + Max)/10;
-        Action endActionMaxOrMin =null;//触发最大或者最小的自动修正事件
+        vector *= canvasActiveSize / screenRealSize;
+        vector += offset_Follow;//修正
+        midPos = (Min + Max) * autoOffsetRange_Out;
+        Action endActionMaxOrMin = null;//触发最大或者最小的自动修正事件
 
         switch (dirEnum)
         {
@@ -151,7 +172,7 @@ public class UIFollowMouse : MonoBehaviour, IDropHandler, IDragHandler,  IEndDra
                 ///EVERY暂无修正
                 break;
         }
-        uesrRectTrans.DOAnchorPos(tempPos,0.38f).OnComplete(()=> { endActionMaxOrMin?.Invoke(); });
+        uesrRectTrans.DOAnchorPos(tempPos, 0.38f).OnComplete(() => { endActionMaxOrMin?.Invoke(); });
     }
 
 
