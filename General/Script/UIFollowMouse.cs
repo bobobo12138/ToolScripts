@@ -58,10 +58,10 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     Vector2 Max;
     Vector2 Min;
 
-    Vector2 offset_Follow;//偏移修正,被位移者-this
+    Vector2 offset_Follow;//偏移修正,被位移者.pso-uifollowmouse.pos
     bool isAutoOffset;//是否自动修正到最大、最小（接近哪边修正到哪边）
 
-    RectTransform uesrRectTrans;
+    RectTransform userRectTrans;
 
     public Action OnOnDrag = null;//当Drag
     public Action AfterOffsetMax = null;//当自动修正到Max
@@ -84,6 +84,7 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     private void Start()
     {
         moveTime_2D = new MoveTime_2D();
+        AfterOffsetMin += () => { userRectTrans.DOKill(); };
     }
 
     /// <summary>
@@ -99,7 +100,7 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     /// <param name="_screenRealSize">屏幕实际宽高</param>
     public void SetData(RectTransform _userRectTrans, DirEnum _dirEnum, Vector2 _max, Vector2 _min, Vector2 _offset_Follow, Vector2 _canvasActiveSize, bool _isAutoOffset = true)
     {
-        uesrRectTrans = _userRectTrans;
+        userRectTrans = _userRectTrans;
         dirEnum = _dirEnum;
         Max = _max;
         Min = _min;
@@ -110,10 +111,10 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
         tSize = canvasActiveSize / screenRealSize;
     }
-
+    #region 拖动事件
     public void OnBeginDrag(PointerEventData eventData)
     {
-        uesrRectTrans.DOKill();
+        userRectTrans.DOKill();
         OnOnDrag?.Invoke();
         moveTime_2D.vector2 = eventData.position;
         moveTime_2D.timer = Time.realtimeSinceStartup;
@@ -123,12 +124,12 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnDrag(PointerEventData eventData)
     {
         //Debug.Log(eventData.position);
-        SetPos(eventData.position);
+        PositionFollow(eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        SetPos(eventData.position);
+        PositionFollow(eventData.position);
         moveTime_2D.vector2 = eventData.position - moveTime_2D.vector2;//算出增量
         moveTime_2D.timer = Time.realtimeSinceStartup - moveTime_2D.timer;
         moveTime_2D.OffsetMovePos(dirEnum);
@@ -136,21 +137,37 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         {
             ///速度触发修正
             if (isAutoOffset)
-                OffsetPos_Speed(moveTime_2D.vector2);
+                AutoOffset_Speed(moveTime_2D.vector2);
         }
         else
         {
             ///坐标触发修正
             if (isAutoOffset)
-                OffsetPos_Auto(eventData.position);
+                AutoOffset_Pos(eventData.position);
         }
         moveTime_2D.Refresh();
     }
-
+    #endregion
+    /// <summary>
+    /// 外部调动的修正到最大并播放动画
+    /// </summary>
+    public void PlaySetMax()
+    {
+        userRectTrans.anchoredPosition =new Vector2(userRectTrans.anchoredPosition.x, Min.y);
+        AutoOffset_Pos(Max, false);
+    }
+    /// <summary>
+    /// 外部调动的修正最小并播放动画
+    /// </summary>
+    public void PlaySetMin()
+    {
+        userRectTrans.anchoredPosition = new Vector2(userRectTrans.anchoredPosition.x, Max.y);
+        AutoOffset_Pos(Min, false);
+    }
 
 
     Vector3 tempPos;
-    void SetPos(Vector2 vector)
+    void PositionFollow(Vector2 vector)
     {
         vector *= tSize;
         vector += offset_Follow;//修正
@@ -161,17 +178,17 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             case DirEnum.UPDOWN:
                 if (vector.y >= Min.y && vector.y <= Max.y)
                 {
-                    tempPos.x = uesrRectTrans.anchoredPosition.x;
+                    tempPos.x = userRectTrans.anchoredPosition.x;
                     tempPos.y = vector.y;
-                    uesrRectTrans.anchoredPosition = tempPos;
+                    userRectTrans.anchoredPosition = tempPos;
                 }
                 break;
             case DirEnum.LEFTRIGHT://现在左右与双向都不能运作，因为鼠标左下角是（0,0）
                 if (vector.x >= Min.x && vector.x <= Max.x)
                 {
-                    tempPos.y = uesrRectTrans.anchoredPosition.y;
+                    tempPos.y = userRectTrans.anchoredPosition.y;
                     tempPos.x = vector.x;
-                    uesrRectTrans.anchoredPosition = tempPos;
+                    userRectTrans.anchoredPosition = tempPos;
                 }
                 break;
             case DirEnum.EVERY:
@@ -180,7 +197,7 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                     if (vector.x > Min.x && vector.x < Max.x)
                     {
                         tempPos = vector;
-                        uesrRectTrans.anchoredPosition = tempPos;
+                        userRectTrans.anchoredPosition = tempPos;
                     }
                 }
                 break;
@@ -188,10 +205,16 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     }
 
     Vector3 midPos;
-    void OffsetPos_Auto(Vector2 vector)
+    /// <summary>
+    /// 根据vector自动修正
+    /// </summary>
+    /// <param name="vector"></param>
+    /// <param name="_isOffsetPos"></param>
+    void AutoOffset_Pos(Vector2 vector, bool _isOffsetPos = true)
     {
         vector *= tSize;
-        vector += offset_Follow;//修正
+        if (_isOffsetPos)
+            vector += offset_Follow;//修正
         midPos = (Min + Max) * autoOffsetRange_Out;
         Action endActionMaxOrMin = null;//触发最大或者最小的自动修正事件
 
@@ -200,13 +223,13 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             case DirEnum.UPDOWN:
                 if (vector.y >= midPos.y)
                 {
-                    tempPos.x = uesrRectTrans.anchoredPosition.x;
+                    tempPos.x = userRectTrans.anchoredPosition.x;
                     tempPos.y = Max.y;
                     endActionMaxOrMin = AfterOffsetMax;
                 }
                 else
                 {
-                    tempPos.x = uesrRectTrans.anchoredPosition.x;
+                    tempPos.x = userRectTrans.anchoredPosition.x;
                     tempPos.y = Min.y;
                     endActionMaxOrMin = AfterOffsetMin;
 
@@ -215,14 +238,14 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             case DirEnum.LEFTRIGHT:
                 if (vector.x >= midPos.x)
                 {
-                    tempPos.y = uesrRectTrans.anchoredPosition.y;
+                    tempPos.y = userRectTrans.anchoredPosition.y;
                     tempPos.x = Max.x;
                     endActionMaxOrMin = AfterOffsetMax;
 
                 }
                 else
                 {
-                    tempPos.y = uesrRectTrans.anchoredPosition.y;
+                    tempPos.y = userRectTrans.anchoredPosition.y;
                     tempPos.x = Min.x;
                     endActionMaxOrMin = AfterOffsetMin;
 
@@ -232,10 +255,13 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 ///EVERY暂无修正
                 break;
         }
-        uesrRectTrans.DOAnchorPos(tempPos, 0.38f).OnComplete(() => { endActionMaxOrMin?.Invoke(); });
+        userRectTrans.DOAnchorPos(tempPos, 0.38f).OnComplete(() => { endActionMaxOrMin?.Invoke(); });
     }
-
-    void OffsetPos_Speed(Vector2 move)
+    /// <summary>
+    /// 根据move的速度自动修正
+    /// </summary>
+    /// <param name="move"></param>
+    void AutoOffset_Speed(Vector2 move)
     {
         Action endActionMaxOrMin = null;//触发最大或者最小的自动修正事件
         switch (dirEnum)
@@ -243,13 +269,13 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             case DirEnum.UPDOWN:
                 if (move.y >= 0)
                 {
-                    tempPos.x = uesrRectTrans.anchoredPosition.x;
+                    tempPos.x = userRectTrans.anchoredPosition.x;
                     tempPos.y = Max.y;
                     endActionMaxOrMin = AfterOffsetMax;
                 }
                 else
                 {
-                    tempPos.x = uesrRectTrans.anchoredPosition.x;
+                    tempPos.x = userRectTrans.anchoredPosition.x;
                     tempPos.y = Min.y;
                     endActionMaxOrMin = AfterOffsetMin;
 
@@ -258,14 +284,14 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             case DirEnum.LEFTRIGHT:
                 if (move.x >= 0)
                 {
-                    tempPos.y = uesrRectTrans.anchoredPosition.y;
+                    tempPos.y = userRectTrans.anchoredPosition.y;
                     tempPos.x = Max.x;
                     endActionMaxOrMin = AfterOffsetMax;
 
                 }
                 else
                 {
-                    tempPos.y = uesrRectTrans.anchoredPosition.y;
+                    tempPos.y = userRectTrans.anchoredPosition.y;
                     tempPos.x = Min.x;
                     endActionMaxOrMin = AfterOffsetMin;
 
@@ -275,16 +301,11 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 ///EVERY暂无修正
                 break;
         }
-        uesrRectTrans.DOAnchorPos(tempPos, 0.38f).OnComplete(() => { endActionMaxOrMin?.Invoke(); });
+        userRectTrans.DOAnchorPos(tempPos, 0.38f).OnComplete(() => { endActionMaxOrMin?.Invoke(); });
     }
 
-
-
-
-
-
     /// <summary>
-    /// 每次点击都应该重置offset
+    /// 每次点击都应该重置offset_Follow
     /// </summary>
     /// <param name="vector"></param>
     void ReSetOffset(Vector2 vector)
