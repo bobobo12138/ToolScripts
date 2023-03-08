@@ -15,7 +15,7 @@ public interface IGeneralFSM
 /// <summary>
 /// 枚举键的状态机_泛型
 /// </summary>
-public class GeneralFSM<T_User, T_Enum>where T_Enum :Enum
+public class GeneralFSM<T_User, T_Enum> where T_Enum : Enum
 {
     [System.Serializable]
     public class NowEnemyState
@@ -32,9 +32,10 @@ public class GeneralFSM<T_User, T_Enum>where T_Enum :Enum
     /// 提供使用者的Gameobject
     /// </summary>
     /// <param name="v"></param>
-    public GeneralFSM(GameObject v)
+    public GeneralFSM(UnityEngine.Object v)
     {
-        pointIGeneralFSM = v.GetComponent<IGeneralFSM>();
+        if (v is IGeneralFSM)
+            pointIGeneralFSM = (IGeneralFSM)v;
     }
 
     #region 注入移除
@@ -85,7 +86,7 @@ public class GeneralFSM<T_User, T_Enum>where T_Enum :Enum
         nowState.State = state;
         nowState.Act = FSMDictionary[state];
         ///执行切换回调，若有的话
-        if(pointIGeneralFSM!=null) pointIGeneralFSM.UpdateState_CallBack();
+        if (pointIGeneralFSM != null) pointIGeneralFSM.UpdateState_CallBack();
         ///执行下一个状态的OnStart
         FSMDictionary[nowState.State].OnStart();
 
