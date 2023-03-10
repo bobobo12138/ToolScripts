@@ -36,11 +36,26 @@ public class SingleCardData
 
         return animationCurve_P_Weight.Evaluate(_x);
     }
+
+    /// <summary>
+    /// 返回总的权重
+    /// </summary>
+    /// <returns></returns>
+    public float GetTotalWeight(float _x)
+    {
+        if (_x > 1 || _x < 0)
+        {
+            Debug.Log("传入x错误");
+            return 0;
+        }
+        return default_P_Weight + animationCurve_P_Weight.Evaluate(_x);
+    }
+
 }
 
 
 public enum CardTyple
-{ 
+{
     none,
     Normal,
     Weapon,
