@@ -98,13 +98,13 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     /// <param name="_isAutoOffset"></param>
     /// <param name="_canvasActiveSize">canvas实际宽高</param>
     /// <param name="_screenRealSize">屏幕实际宽高</param>
-    public void SetData(RectTransform _userRectTrans, DirEnum _dirEnum, Vector2 _max, Vector2 _min, Vector2 _offset_Follow, Vector2 _canvasActiveSize, bool _isAutoOffset = true)
+    public void SetData(RectTransform _userRectTrans, DirEnum _dirEnum, Vector2 _max, Vector2 _min, Vector2 _canvasActiveSize, bool _isAutoOffset = true)
     {
         userRectTrans = _userRectTrans;
         dirEnum = _dirEnum;
         Max = _max;
         Min = _min;
-        offset_Follow = _offset_Follow;
+        //offset_Follow = _offset_Follow;
         canvasActiveSize = _canvasActiveSize;
         screenRealSize = new Vector2(Screen.width, Screen.height);//自己获取，参数太多了，考虑优化
         isAutoOffset = _isAutoOffset;
