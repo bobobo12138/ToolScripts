@@ -18,9 +18,6 @@ public abstract class ChildPanelBase : GBaseMono
     //[SerializeField]
     //float aniSpeed = 1;
     //public ChildPanelType type;
-    [Header("子面板所依赖的父级，setactive会对此GameObject进行操作")]
-    [SerializeField]
-    GameObject parent;
 
     [HideInInspector]
     public RectTransform rectTransform;
@@ -43,6 +40,7 @@ public abstract class ChildPanelBase : GBaseMono
             deChooseBG_Button.onSelected += () => { uIFollowMouse.PlaySetMin(); };
             uIFollowMouse.AfterOffsetMax += AfterShowAni;
             uIFollowMouse.AfterOffsetMin += AfterHideAni;
+            uIFollowMouse.AfterOffsetMin += () => { SetActive(false); };//若是 uIFollowMouse存在，动画会自动隐藏
         }
 
         OnInit();
@@ -50,7 +48,7 @@ public abstract class ChildPanelBase : GBaseMono
     /// <summary>
     /// 强制显示、隐藏
     /// 只有此接口会调用子面板的OnShow、OnHide
-    /// 注意此参数有动画效果
+    /// 注意此方法会触发动画（若带有UIFollow组件的话），请勿在动画回调中触发此方法
     /// </summary>
     /// <param name="_isShow"></param>
     public void Show(bool _isShow = true)
@@ -66,23 +64,26 @@ public abstract class ChildPanelBase : GBaseMono
         {
             OnHide();
             if (uIFollowMouse != null)
+            {
                 uIFollowMouse.PlaySetMin();
+                return;
+            }
         }
         ///设置显示
+        SetActive(_isShow);
+    }
+
+    /// <summary>
+    /// 强制设置显示
+    /// 此方法不会调动动画
+    /// </summary>
+    /// <param name="_isShow"></param>
+    public void SetActive(bool _isShow = true)
+    {
         isShow = _isShow;
         gameObject.SetActive(_isShow);
         if (deChooseBG_Button != null)
             deChooseBG_Button.gameObject.SetActive(_isShow);//设置挡板
-    }
-
-    /// <summary>
-    /// 强制设置显示隐藏
-    /// </summary>
-    /// <param name="active"></param>
-    public void SetActive(bool active)
-    {
-        if (parent != null)
-            parent.SetActive(active);
     }
 
     ///可以在此处指定该面板的type
