@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
+/// 继承此接口可以让对象池对实例化的对象进行初始化
+/// </summary>
+public interface IObjInit
+{
+    public void Init();
+}
+
+/// <summary>
 /// 通用泛型状态机,T必须是MonoBehaviour子集
 /// </summary>
 public class GObjPool<T> where T : MonoBehaviour
@@ -19,13 +27,13 @@ public class GObjPool<T> where T : MonoBehaviour
         parent = _parent;
         prototype = GameObject.Instantiate(_spawnObj, parent);//预先克隆一个作为原型，方便外部访问修改
         prototype.name = prototype.name + "prototype";
-        prototype.gameObject.SetActive(false);
         for (int i = 0; i < num; i++)
         {
             var v = GameObject.Instantiate(prototype, parent);
-            v.gameObject.SetActive(false);
             pool.Push(v);
+            v.gameObject.SetActive(false);
         }
+        prototype.gameObject.SetActive(false);//最后才将原型SetActive(false)否则会出现awake运行问题
     }
     /// <summary>
     /// 获取一个对象
@@ -36,6 +44,14 @@ public class GObjPool<T> where T : MonoBehaviour
         if (pool.Count == 0)
         {
             var v = GameObject.Instantiate(prototype, parent);
+
+            //进行初始化，若继承了IObjInit接口的话
+            if (v is IObjInit)
+            {
+                var temp = v as IObjInit;
+                temp.Init();
+            }
+
             v.gameObject.SetActive(true);
             Expand_Get(v);
             return v;
