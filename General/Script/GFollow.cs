@@ -18,6 +18,10 @@ public class GFollow : MonoBehaviour
         temp = rectTransform.anchoredPosition - followTrans.pivot;
     }
 
+    public void ReSetFollowTrans(RectTransform _followTrans)
+    {
+        followTrans = _followTrans;
+    }
 
     private void LateUpdate()
     {
