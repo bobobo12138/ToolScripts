@@ -83,6 +83,120 @@ public class Utils
     }
 
     /// <summary>
+    /// 得到【屏幕外物体位置到屏幕中心的连线】与屏幕边界的交点，无死角。
+    /// </summary>
+    /// <param name="x">物体X坐标</param>
+    /// <param name="y">物体Y坐标</param>
+    /// <param name="width">屏幕宽度</param>
+    /// <param name="height">屏幕高度</param>
+    /// <returns></returns>
+    public static Vector2 CalculateIntersectionBetter(float x, float y, float width, float height)
+    {
+        Vector2 position = new Vector2();
+        if (CheckInView(x, y, width, height))
+        {
+            position.x = x;
+            position.y = y;
+
+            return position;
+        }
+
+        float aspectRatio = height / width;
+        float relativeY = y - height / 2;
+        float relativeX = x - width / 2;
+
+        relativeX = relativeX == 0 ? 0.01f : relativeX;//GetSafeFloatDivisor ： return value = value == 0 ? 0.01f : value;
+
+        float k = relativeY / relativeX;
+
+        /*
+         * 
+         *                    |
+         *           2        |        3
+         *                    |
+         *                    |
+         *                    |
+         *    1               |               4
+         *                    |
+         *                    |
+         *————————————————————|————————————————————h/2
+         *                    |
+         *                    |
+         *    8               |               5
+         *                    |
+         *                    |
+         *                    |
+         *           7        |        6
+         *                    |
+         *                   w/2
+         * 
+         *
+         * 8=1  2=3  4=5  6=7
+         */
+
+        if (y > height / 2)
+        {
+            if (x < width / 2)
+            {
+                if (-aspectRatio < k)   //1
+                {
+                    position.x = 0;
+                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (width / 2 - x);
+                }
+                else                    //2
+                {
+                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (y - height / 2);
+                    position.y = height;
+                }
+            }
+            else
+            {
+                if (aspectRatio < k)    //3
+                {
+                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (y - height / 2);
+                    position.y = height;
+                }
+                else                    //4
+                {
+                    position.x = width;
+                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (x - width / 2);
+                }
+            }
+        }
+        else
+        {
+            if (x > width / 2)
+            {
+                if (-aspectRatio < k)   //5
+                {
+                    position.x = width;
+                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (x - width / 2);
+                }
+                else                    //6
+                {
+                    position.y = 0;
+                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (height / 2 - y);
+                }
+            }
+            else
+            {
+                if (aspectRatio < k)    //7
+                {
+                    position.y = 0;
+                    position.x = width / 2 + (x - (width / 2)) * (height / 2) / (height / 2 - y);
+                }
+                else                    //8
+                {
+                    position.x = 0;
+                    position.y = height / 2 + (y - (height / 2)) * (width / 2) / (width / 2 - x);
+                }
+            }
+        }
+
+        return position;
+    }
+
+    /// <summary>
     /// 确认目标是否在视野内
     /// </summary>
     /// <param name="x">物体X坐标</param>
@@ -474,7 +588,7 @@ public class Utils
     /// 参考者，被计算者，变化量or
     /// 分子，分母，变量
     /// </summary>
-    public static float ProportionCounter(float molecule, float denominator, float v)
+    public static float ProportionCalculate(float molecule, float denominator, float v)
     {
         return (molecule / denominator) * v;
     }
@@ -499,6 +613,8 @@ public class Utils
         return new Vector2(user.x * pro, user.y * pro);
     }
 
+
+
     /// <summary>
     /// 字符串转枚举
     /// </summary>
@@ -507,7 +623,35 @@ public class Utils
     /// <returns></returns>
     public static T ToEnum<T>(string str)
     {
+        Debug.Log(str);
         return (T)System.Enum.Parse(typeof(T), str);
+    }
+
+    /// <summary>
+    /// 最大公约数
+    /// </summary>
+    /// <param name="m"></param>
+    /// <param name="n"></param>
+    /// <returns></returns>
+    public static int Gcd(int m, int n)
+    {
+        if (m == 0)
+            return n;
+
+        return Gcd(n % m, m);
+    }
+    
+    /// <summary>
+    /// 获得当先text的文字像素长度
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    public static float CalcTextWidth(Text text)
+    {
+        TextGenerator tg = text.cachedTextGeneratorForLayout;
+        TextGenerationSettings setting = text.GetGenerationSettings(Vector2.zero);
+        float width = tg.GetPreferredWidth(text.text, setting) / text.pixelsPerUnit;
+        return width;
     }
 }
 
