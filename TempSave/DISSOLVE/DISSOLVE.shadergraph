@@ -58,9 +58,6 @@
             "m_Id": "49b2f77c2e574a3f9c38bfc90719d714"
         },
         {
-            "m_Id": "cf00c4be16164152b43537a7ac4bfb39"
-        },
-        {
             "m_Id": "6c012c6579714c73b69c95b421f126b6"
         },
         {
@@ -113,6 +110,9 @@
         },
         {
             "m_Id": "f933f160a62349ec94093de938ac109a"
+        },
+        {
+            "m_Id": "f9931cd0bb3e4aa5b45d893711ef7876"
         }
     ],
     "m_GroupDatas": [],
@@ -499,10 +499,10 @@
                 "m_Id": "49b2f77c2e574a3f9c38bfc90719d714"
             },
             {
-                "m_Id": "cf00c4be16164152b43537a7ac4bfb39"
+                "m_Id": "e7a6cbf9ec1b4ca895da1362a50f0082"
             },
             {
-                "m_Id": "e7a6cbf9ec1b4ca895da1362a50f0082"
+                "m_Id": "f9931cd0bb3e4aa5b45d893711ef7876"
             }
         ]
     },
@@ -918,6 +918,30 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.NormalMaterialSlot",
+    "m_ObjectId": "236813335ff34c128ce4e5839778b2e0",
+    "m_Id": 0,
+    "m_DisplayName": "Normal (Tangent Space)",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "NormalTS",
+    "m_StageCapability": 2,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_Labels": [],
+    "m_Space": 3
 }
 
 {
@@ -2201,7 +2225,7 @@
     "m_AlphaMode": 0,
     "m_TwoSided": false,
     "m_AlphaClip": true,
-    "m_CustomEditorGUI": ""
+    "m_CustomEditorGUI": "0"
 }
 
 {
@@ -3000,39 +3024,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.BlockNode",
-    "m_ObjectId": "cf00c4be16164152b43537a7ac4bfb39",
-    "m_Group": {
-        "m_Id": ""
-    },
-    "m_Name": "SurfaceDescription.NormalTS",
-    "m_DrawState": {
-        "m_Expanded": true,
-        "m_Position": {
-            "serializedVersion": "2",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 0.0,
-            "height": 0.0
-        }
-    },
-    "m_Slots": [
-        {
-            "m_Id": "edb0088b16a745dfbe8fbb199a813fef"
-        }
-    ],
-    "synonyms": [],
-    "m_Precision": 0,
-    "m_PreviewExpanded": true,
-    "m_PreviewMode": 0,
-    "m_CustomColors": {
-        "m_SerializableColors": []
-    },
-    "m_SerializedDescriptor": "SurfaceDescription.NormalTS"
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "d1d4155e620443b082aa0ff5b0b4bf90",
     "m_Id": 2,
@@ -3426,30 +3417,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.NormalMaterialSlot",
-    "m_ObjectId": "edb0088b16a745dfbe8fbb199a813fef",
-    "m_Id": 0,
-    "m_DisplayName": "Normal (Tangent Space)",
-    "m_SlotType": 0,
-    "m_Hidden": false,
-    "m_ShaderOutputName": "NormalTS",
-    "m_StageCapability": 2,
-    "m_Value": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-    },
-    "m_DefaultValue": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-    },
-    "m_Labels": [],
-    "m_Space": 3
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "ede17c7c07424543b0cf9ae10209822b",
     "m_Group": {
@@ -3653,6 +3620,39 @@
     },
     "m_TextureType": 0,
     "m_NormalMapSpace": 0
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.BlockNode",
+    "m_ObjectId": "f9931cd0bb3e4aa5b45d893711ef7876",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "SurfaceDescription.NormalTS",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "236813335ff34c128ce4e5839778b2e0"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_SerializedDescriptor": "SurfaceDescription.NormalTS"
 }
 
 {
