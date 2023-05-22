@@ -613,6 +613,28 @@ public class Utils
         return new Vector2(user.x * pro, user.y * pro);
     }
 
+    /// <summary>
+    /// 最大平铺，将user铺满max
+    /// 返回乘数
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="max"></param>
+    /// <returns></returns>
+    public static float MaxTiled(Vector2 user, Vector2 max)
+    {
+        float x = max.x / user.x;
+        float y = max.y / user.y;
+
+        if (x >= y)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+
 
 
     /// <summary>
@@ -640,18 +662,20 @@ public class Utils
 
         return Gcd(n % m, m);
     }
-    
+
     /// <summary>
-    /// 获得当先text的文字像素长度
+    /// 获取Blit的renderTexture，会分配一个新的renderTexture
+    /// 注意必须手动ReleaseTemporary！
     /// </summary>
-    /// <param name="text"></param>
+    /// <param name="texture2D"></param>
+    /// <param name="material"></param>
+    /// <param name="accuracy">精度，全精度是1，半精度就是2</param>
     /// <returns></returns>
-    public static float CalcTextWidth(Text text)
+    public static RenderTexture GetBlitRenderTexture(Texture2D texture2D, Material material, int accuracy=1)
     {
-        TextGenerator tg = text.cachedTextGeneratorForLayout;
-        TextGenerationSettings setting = text.GetGenerationSettings(Vector2.zero);
-        float width = tg.GetPreferredWidth(text.text, setting) / text.pixelsPerUnit;
-        return width;
+        var tempRenderTexture = RenderTexture.GetTemporary(texture2D.width / accuracy, texture2D.height / accuracy, 0);
+        Graphics.Blit(texture2D, tempRenderTexture, material);
+        return tempRenderTexture;
     }
 }
 
