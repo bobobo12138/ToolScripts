@@ -1,0 +1,14 @@
+
+        if (tex.width > tex.height)
+        {
+            //宽更大
+            rawImage_Fin.rectTransform.SetSizeWithCurrentAnchors(Axis.Horizontal, rectTransform.rect.width);
+            rawImage_Fin.rectTransform.SetSizeWithCurrentAnchors(Axis.Vertical, Utils.ProportionCalculate(rectTransform.rect.width, tex.width, tex.height));
+        }
+        else
+        {
+            //高更大
+            rawImage_Fin.rectTransform.SetSizeWithCurrentAnchors(Axis.Vertical, rectTransform.rect.height);
+            rawImage_Fin.rectTransform.SetSizeWithCurrentAnchors(Axis.Horizontal, Utils.ProportionCalculate(rectTransform.rect.height, tex.height, tex.width));
+        }
+        Canvas.ForceUpdateCanvases();

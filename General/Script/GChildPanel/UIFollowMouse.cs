@@ -153,7 +153,7 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     /// </summary>
     public void PlaySetMax()
     {
-        userRectTrans.anchoredPosition =new Vector2(userRectTrans.anchoredPosition.x, Min.y);
+        userRectTrans.anchoredPosition = new Vector2(userRectTrans.anchoredPosition.x, Min.y);
         AutoOffset_Pos(Max, false);
     }
     /// <summary>
@@ -311,7 +311,7 @@ public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     void ReSetOffset(Vector2 vector)
     {
         vector *= canvasActiveSize / screenRealSize;
-        offset_Follow = new Vector2(vector.x, -vector.y);
+        offset_Follow = new Vector2(vector.x, -vector.y) + userRectTrans.anchoredPosition;
     }
 
 
