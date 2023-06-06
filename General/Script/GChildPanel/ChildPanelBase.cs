@@ -23,6 +23,9 @@ public abstract class ChildPanelBase : GBaseMono
     public RectTransform rectTransform;
     [HideInInspector]
     public bool isShow;
+    [Header("是否总是显示")]
+    public bool isAlwaysShow = false;
+
 
     [SerializeField]
     public UIFollowMouse uIFollowMouse;//跟随区域，要使用的话需要在Init中赋值,动画都是依托与此对象
@@ -39,8 +42,18 @@ public abstract class ChildPanelBase : GBaseMono
             ///子类需要为uIFollowMouse初始化，若需要使用的话
             deChooseBG_Button.onSelected += () => { uIFollowMouse.PlaySetMin(); };
             uIFollowMouse.AfterOffsetMax += AfterShowAni;
+            uIFollowMouse.AfterOffsetMax += () =>
+            {
+                deChooseBG_Button.gameObject.SetActive(true);//设置挡板
+
+            };//设置挡板}
+
             uIFollowMouse.AfterOffsetMin += AfterHideAni;
-            uIFollowMouse.AfterOffsetMin += () => { SetActive(false); };//若是 uIFollowMouse存在，动画会自动隐藏
+            uIFollowMouse.AfterOffsetMin += () =>
+            {
+                SetActive(false);
+                deChooseBG_Button.gameObject.SetActive(false);//设置挡板
+            };//若是 uIFollowMouse存在，动画会自动隐藏
         }
 
         OnInit();
@@ -81,9 +94,7 @@ public abstract class ChildPanelBase : GBaseMono
     public void SetActive(bool _isShow = true)
     {
         isShow = _isShow;
-        gameObject.SetActive(_isShow);
-        if (deChooseBG_Button != null)
-            deChooseBG_Button.gameObject.SetActive(_isShow);//设置挡板
+        if (!isAlwaysShow) gameObject.SetActive(_isShow);
     }
 
     ///可以在此处指定该面板的type

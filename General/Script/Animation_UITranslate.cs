@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+
 /// <summary>
 /// UI平移工具
 /// </summary>
@@ -11,27 +14,56 @@ public class Animation_UITranslate
 {
     public RectTransform rectTransform;
 
-    public Action beforeAni;
-    public Action afterAni;
+    public Action beforePlay;
+    public Action afterPlay;
 
+    public Action beforePlayBack;
+    public Action afterPlayBack;
+
+    /// <summary>自定义方向</summary>
+    public Vector2 dir;
+
+    /// <summary>是否仅在active状态下播放</summary>
+    public bool playOnlyInActive=false;
     public Animation_UITranslate(RectTransform rectTransform)
     {
         this.rectTransform = rectTransform;
+        dir = Vector2.right;
     }
 
+    public Animation_UITranslate(RectTransform rectTransform, Vector2 dir)
+    {
+        this.rectTransform = rectTransform;
+        this.dir = dir;
+    }
+
+
+    /// <summary>
+    /// 运行
+    /// </summary>
     public void Play()
     {
-        if (rectTransform.gameObject.activeSelf)//若已经显示则不播放动画
+        if (playOnlyInActive)
         {
-            beforeAni?.Invoke();
-            afterAni?.Invoke();
+            if (!rectTransform.gameObject.activeSelf) return;
         }
-        else
-        {
-            beforeAni?.Invoke();
-            rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, 0);
-            rectTransform.DOAnchorPos(Vector2.zero, 0.5f).OnComplete(() => { afterAni?.Invoke(); });
 
+        beforePlay?.Invoke();
+        rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir;
+        rectTransform.DOAnchorPos(Vector2.zero, 0.5f).OnComplete(() => { afterPlay?.Invoke(); });
+    }
+
+    /// <summary>
+    /// 回放
+    /// </summary>
+    public void PlayBack()
+    {
+        if (playOnlyInActive)
+        {
+            if (!rectTransform.gameObject.activeSelf) return;
         }
+
+        beforePlayBack?.Invoke();
+        rectTransform.DOAnchorPos(new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir, 0.5f).OnComplete(() => { afterPlayBack?.Invoke(); });
     }
 }

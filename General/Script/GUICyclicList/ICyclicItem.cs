@@ -13,4 +13,10 @@ public interface ICyclicItem
     /// </summary>
     /// <param name="index"></param>
     void SetIndex(int index);
+
+    void SetActive(bool active);
+
+    int GetIndex();
+
+    RectTransform GetRectTransform();
 }

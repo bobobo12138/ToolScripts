@@ -8,20 +8,30 @@ public class GSwitchButon : MonoBehaviour
 {
     [Header("turnOff与turnOn的obj")]
     [SerializeField]
-    GameObject obj_TrunOn;
+    GameObject obj_TurnOn;
     [SerializeField]
-    GameObject obj_TrunOff;
+    GameObject obj_TurnOff;
     [Header("触发的按钮")]
     [SerializeField]
     Button Button;
 
     Action ClickTrunOn;
     Action ClickTrunOff;
-    private void Start()
+    private void Awake()
     {
         if (Button != null)
         {
             Button.onClick.AddListener(Trigger);
+            ClickTrunOn += () =>
+            {
+                obj_TurnOn.SetActive(true);
+                obj_TurnOff.SetActive(false);
+            };
+            ClickTrunOff += () =>
+            {
+                obj_TurnOn.SetActive(false);
+                obj_TurnOff.SetActive(true);
+            };
         }
         else
         {
@@ -34,48 +44,43 @@ public class GSwitchButon : MonoBehaviour
     /// </summary>
     /// <param name="_triggerCallBack"></param>
     /// <param name="initState"></param>
-    public void AddListeners(Action _ClickTrunOn, Action _ClickTrunOff, bool initState=true)
+    public void AddListeners(Action _ClickTurnOn, Action _ClickTurnOff, bool initState = true)
     {
-        ClickTrunOn = _ClickTrunOn;
-        ClickTrunOff = _ClickTrunOff;
+        ClickTrunOn += _ClickTurnOn;
+        ClickTrunOff += _ClickTurnOff;
 
         if (initState)
         {
-            ClickTrunOn();
-            obj_TrunOn.SetActive(true);
-            obj_TrunOff.SetActive(false);
-
+            ClickTrunOn?.Invoke();
         }
         else
         {
-            ClickTrunOff();
-            obj_TrunOn.SetActive(false);
-            obj_TrunOff.SetActive(true);
+            ClickTrunOff?.Invoke();
         }
     }
     /// <summary>
     /// 触发开关
     /// </summary>
-    void Trigger()
+    public void Trigger()
     {
-        if (ClickTrunOn == null)
+        if (obj_TurnOn.activeSelf)//触发开关，现在是开，所以要执行关
         {
-            Debug.LogWarning("开关中无事件");
-            return;
+            ClickTrunOff?.Invoke();
         }
-        Debug.LogWarning("测试");
-        if (obj_TrunOn.activeSelf)//触发开关，现在是开，所以要执行关
+        else if (!obj_TurnOn.activeSelf)
         {
-            ClickTrunOff();
-            obj_TrunOn.SetActive(false);
-            obj_TrunOff.SetActive(true);
-        }
-        else if (!obj_TrunOn.activeSelf)
-        {
-            ClickTrunOn();
-            obj_TrunOn.SetActive(true);
-            obj_TrunOff.SetActive(false);
+            ClickTrunOn?.Invoke();
         }
 
+    }
+
+    public void TriggerTrunOn()
+    {
+        ClickTrunOn?.Invoke();
+    }
+
+    public void TriggerTrunOff()
+    {
+        ClickTrunOff?.Invoke();
     }
 }
