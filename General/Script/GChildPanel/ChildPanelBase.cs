@@ -94,7 +94,9 @@ public abstract class ChildPanelBase : GBaseMono
     public void SetActive(bool _isShow = true)
     {
         isShow = _isShow;
-        if (!isAlwaysShow) gameObject.SetActive(_isShow);
+        gameObject.SetActive(_isShow);
+        if (deChooseBG_Button != null)
+            deChooseBG_Button.gameObject.SetActive(_isShow);//设置挡板
     }
 
     ///可以在此处指定该面板的type
