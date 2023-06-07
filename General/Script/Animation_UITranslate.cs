@@ -13,13 +13,6 @@ using UnityEngine;
 public class Animation_UITranslate
 {
     public RectTransform rectTransform;
-
-    //public Action beforePlay;
-    //public Action afterPlay;
-
-    //public Action beforePlayBack;
-    //public Action afterPlayBack;
-
     /// <summary>自定义方向</summary>
     public Vector2 dir;
 
@@ -50,11 +43,10 @@ public class Animation_UITranslate
             if (!rectTransform.gameObject.activeSelf) return;
         }
 
-        //beforePlay?.Invoke();
         rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir;
         rectTransform.DOAnchorPos(Vector2.zero, duration).OnComplete(() =>
         {
-            //afterPlay?.Invoke();
+
         });
     }
 
@@ -65,12 +57,11 @@ public class Animation_UITranslate
             if (!rectTransform.gameObject.activeSelf) return;
         }
 
-        //beforePlay?.Invoke();
         before?.Invoke();
         rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir;
         rectTransform.DOAnchorPos(Vector2.zero, duration).OnComplete(() =>
         {
-            //afterPlay?.Invoke(); after?.Invoke();
+            after?.Invoke();
         });
     }
 
@@ -85,10 +76,8 @@ public class Animation_UITranslate
             if (!rectTransform.gameObject.activeSelf) return;
         }
 
-        //beforePlayBack?.Invoke();
         rectTransform.DOAnchorPos(new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir, duration).OnComplete(() =>
         {
-            //afterPlayBack?.Invoke();
         });
     }
 
@@ -99,11 +88,10 @@ public class Animation_UITranslate
             if (!rectTransform.gameObject.activeSelf) return;
         }
 
-        //beforePlayBack?.Invoke();
         before?.Invoke();
         rectTransform.DOAnchorPos(new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir, duration).OnComplete(() =>
         {
-            //afterPlayBack?.Invoke(); after?.Invoke();
+            after?.Invoke();
         });
     }
 }
