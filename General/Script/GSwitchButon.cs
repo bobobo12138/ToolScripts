@@ -24,13 +24,11 @@ public class GSwitchButon : MonoBehaviour
             Button.onClick.AddListener(Trigger);
             ClickTrunOn += () =>
             {
-                obj_TurnOn.SetActive(true);
-                obj_TurnOff.SetActive(false);
+                SetTurnOnStyle();
             };
             ClickTrunOff += () =>
             {
-                obj_TurnOn.SetActive(false);
-                obj_TurnOff.SetActive(true);
+                SetTurnOffStyle();
             };
         }
         else
@@ -82,5 +80,36 @@ public class GSwitchButon : MonoBehaviour
     public void TriggerTrunOff()
     {
         ClickTrunOff?.Invoke();
+    }
+
+    /// <summary>
+    /// 只设置状态不触发事件
+    /// </summary>
+    /// <param name="isTurnOn"></param>
+    public void SetState(bool isTurnOn)
+    {
+        if (isTurnOn)
+        {
+            SetTurnOnStyle();
+
+        }
+        else
+        {
+            SetTurnOffStyle();
+        }
+    }
+
+
+
+    void SetTurnOnStyle()
+    {
+        obj_TurnOn.SetActive(true);
+        obj_TurnOff.SetActive(false);
+    }
+
+    void SetTurnOffStyle()
+    {
+        obj_TurnOn.SetActive(false);
+        obj_TurnOff.SetActive(true);
     }
 }
