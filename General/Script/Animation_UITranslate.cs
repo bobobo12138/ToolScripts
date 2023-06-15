@@ -20,16 +20,33 @@ public class Animation_UITranslate
     public bool playOnlyInActive = false;
     public float duration = 0.5f;
 
-    public Animation_UITranslate(RectTransform rectTransform)
+    GameObject mask;
+    Vector2 maskPos;
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="rectTransform"></param>
+    /// <param name="mask">防止误触的mask</param>
+    public Animation_UITranslate(RectTransform rectTransform, GameObject mask = null)
     {
         this.rectTransform = rectTransform;
         dir = Vector2.right;
+        if (mask != null)
+        {
+            this.mask = mask;
+            maskPos = mask.transform.position;
+        }
     }
 
-    public Animation_UITranslate(RectTransform rectTransform, Vector2 dir)
+    public Animation_UITranslate(RectTransform rectTransform, Vector2 dir, GameObject mask = null)
     {
         this.rectTransform = rectTransform;
         this.dir = dir;
+        if (mask != null)
+        {
+            this.mask = mask;
+            maskPos = mask.transform.position;
+        }
     }
 
 
@@ -44,6 +61,8 @@ public class Animation_UITranslate
         }
 
         rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir;
+        if (mask != null)
+            mask.transform.position = maskPos;
         rectTransform.DOAnchorPos(Vector2.zero, duration).OnComplete(() =>
         {
 
@@ -59,6 +78,8 @@ public class Animation_UITranslate
 
         before?.Invoke();
         rectTransform.anchoredPosition = new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir;
+        if (mask != null)
+            mask.transform.position = maskPos;
         rectTransform.DOAnchorPos(Vector2.zero, duration).OnComplete(() =>
         {
             after?.Invoke();
@@ -75,7 +96,8 @@ public class Animation_UITranslate
         {
             if (!rectTransform.gameObject.activeSelf) return;
         }
-
+        if (mask != null)
+            mask.transform.position = maskPos;
         rectTransform.DOAnchorPos(new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir, duration).OnComplete(() =>
         {
         });
@@ -89,6 +111,8 @@ public class Animation_UITranslate
         }
 
         before?.Invoke();
+        if (mask != null)
+            mask.transform.position = maskPos;
         rectTransform.DOAnchorPos(new Vector2(rectTransform.rect.width, rectTransform.rect.height) * dir, duration).OnComplete(() =>
         {
             after?.Invoke();
