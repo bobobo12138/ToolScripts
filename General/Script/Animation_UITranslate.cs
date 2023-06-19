@@ -118,4 +118,10 @@ public class Animation_UITranslate
             after?.Invoke();
         });
     }
+
+
+    public void ResetUserPosition()
+    {
+        rectTransform.anchoredPosition = Vector2.zero;
+    }
 }
