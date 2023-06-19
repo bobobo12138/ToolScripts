@@ -16,53 +16,56 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Action onExit;//退出事件,使用+=
     public GRadioButtonLoader gRadioButtonLoader;//指向的组，可拖动可代码赋值
 
+    public bool interactable = true;
+    public bool isAlwaysCanBeClick = false;//总是可以被点击，将无视单选按钮被选中后不可再次点击的规则
+    public bool isAni = false;//是否小动画
+    public bool isSelected;
+    [SerializeField]
+    bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
+
+
     //单击与取消时的显示
     [Header("焦点时的图片/非焦点时的图片")]
     [Header("为空则代表不会变化")]
     [SerializeField]
-    GameObject clickTrans;
+    protected GameObject clickTrans;
     [SerializeField]
-    GameObject disTrans;
+    protected GameObject disTrans;
 
     [Header("移动到此处时的遮罩")]
     [SerializeField]
     GameObject grayMask;
 
-    public bool interactable = true;
-    public bool isAni = false;//是否小动画
-    public bool isSelected;
-    [SerializeField]
-    bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
+
     Transform aniTrans;
 
-    private void Awake()
+    protected void Awake()
     {
         if (isAwakeInit) Init();
+    }
+
+    private void OnEnable()
+    {
+        transform.localScale = Vector3.one;
     }
 
     /// <summary>
     /// 需要手动代用初始化
     /// </summary>
-    public void Init()
+    public virtual void Init()
     {
         aniTrans = GetComponent<Transform>();
 
+        /// 本项目中单选框已经特化
+        /// 不再是+=，注意初始化问题
+        /// 主要原因是图片历史记录，建议将图片历史记录的radioButton独立出来，防止位置bug
         onSelected += () =>
         {
-            if (disTrans != null)
-                disTrans.SetActive(false);
-            if (clickTrans != null)
-                clickTrans.SetActive(true);
-            isSelected = true;
+            SetSelected();
         };
         onExit += () =>
         {
-            if (disTrans != null)
-                disTrans.SetActive(true);
-            if (clickTrans != null)
-                clickTrans.SetActive(false);
-
-            isSelected = false;
+            SetExit();
         };
 
         ///初始显示退出
@@ -76,9 +79,63 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     /// </summary>
     public void Click()
     {
+        if (isAlwaysCanBeClick)
+        {
+            //总是执行操作
+            onSelected();
+            if (gRadioButtonLoader.last != this)
+            {
+                if (gRadioButtonLoader.last != null)
+                {
+                    gRadioButtonLoader.last.onExit();
+                }
+                gRadioButtonLoader.last = this;
+            }
+            return;
+        }
+
         if (gRadioButtonLoader == null)
         {
             onSelected();
+        }
+        else
+        {
+            //若上一个按钮是自己，不做任何操作
+            if (gRadioButtonLoader.last != this)
+            {
+                if (gRadioButtonLoader.last != null)
+                {
+                    gRadioButtonLoader.last.onExit();
+                }
+                gRadioButtonLoader.last = this;
+                onSelected();
+            }
+        }
+    }
+    /// <summary>
+    /// 不调用onSelected事件的Click
+    /// 特殊方法，不应该放在这里边，后续采用继承
+    /// </summary>
+    public void Click_NoOnSelectedAction()
+    {
+        if (isAlwaysCanBeClick)
+        {
+            //总是执行操作
+            SetSelected();
+            if (gRadioButtonLoader.last != this)
+            {
+                if (gRadioButtonLoader.last != null)
+                {
+                    gRadioButtonLoader.last.onExit();
+                }
+                gRadioButtonLoader.last = this;
+            }
+            return;
+        }
+
+        if (gRadioButtonLoader == null)
+        {
+            SetSelected();
         }
         else
         {
@@ -89,9 +146,27 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
                     gRadioButtonLoader.last.onExit();//执行组内上一个的exit
                 }
                 gRadioButtonLoader.last = this;
-                onSelected();
+                SetSelected();
             }
         }
+    }
+
+    protected void SetSelected()
+    {
+        if (disTrans != null)
+            disTrans.SetActive(false);
+        if (clickTrans != null)
+            clickTrans.SetActive(true);
+        isSelected = true;
+    }
+    protected void SetExit()
+    {
+        if (disTrans != null)
+            disTrans.SetActive(true);
+        if (clickTrans != null)
+            clickTrans.SetActive(false);
+
+        isSelected = false;
     }
     /// <summary>
     /// 刷新
@@ -174,7 +249,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     IEnumerator Ani_Up()
     {
-        transform.localScale = Vector3.one *0.9f;
+        transform.localScale = Vector3.one * 0.9f;
         int count = 5;
         while (count > 0)
         {

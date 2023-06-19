@@ -6,6 +6,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.WSA;
+using static UnityEngine.RectTransform;
 
 public class Utils
 {
@@ -635,6 +637,32 @@ public class Utils
         }
     }
 
+    /// <summary>
+    /// 最大平铺，自动设置RectTransform大小
+    /// </summary>
+    /// <param name="userRectTransform"></param>
+    /// <param name="user"></param>
+    /// <param name="max"></param>
+    public static void MaxTiled(RectTransform userRectTransform, Vector2 user, Vector2 max)
+    {
+        ///获取乘数
+        float mul = 1;
+        float x = max.x / user.x;
+        float y = max.y / user.y;
+
+        if (x >= y)
+        {
+            mul = x;
+        }
+        else
+        {
+            mul = y;
+        }
+        ///设置大小
+        userRectTransform.SetSizeWithCurrentAnchors(Axis.Horizontal, user.x * mul);
+        userRectTransform.SetSizeWithCurrentAnchors(Axis.Vertical, user.y * mul);
+    }
+
 
 
     /// <summary>
@@ -671,11 +699,89 @@ public class Utils
     /// <param name="material"></param>
     /// <param name="accuracy">精度，全精度是1，半精度就是2</param>
     /// <returns></returns>
-    public static RenderTexture GetBlitRenderTexture(Texture2D texture2D, Material material, int accuracy=1)
+    public static RenderTexture GetBlitRenderTexture(Texture2D texture2D, Material material, int accuracy = 1)
     {
         var tempRenderTexture = RenderTexture.GetTemporary(texture2D.width / accuracy, texture2D.height / accuracy, 0);
         Graphics.Blit(texture2D, tempRenderTexture, material);
         return tempRenderTexture;
+    }
+
+
+    /// <summary>
+    /// 判断rect是否重合
+    /// 后续考虑封装成扩展方法，特别是RectOverlaps(RectTransform rectTransform1, RectTransform rectTransform2, Camera camera)
+    /// 发现rect1.Overlaps有误差，具体查看"问题备忘"
+    /// </summary>
+    public static bool RectOverlaps(Rect rect1, Rect rect2)
+    {
+        return rect1.Overlaps(rect2);
+    }
+
+    static Rect tempRect1;
+    static Rect tempRect2;
+    public static bool RectOverlaps(RectTransform rectTransform1, RectTransform rectTransform2, Camera camera)
+    {
+        tempRect1 = rectTransform1.rect;
+        tempRect1.position = camera.WorldToScreenPoint(rectTransform1.position);
+        tempRect1.position -= camera.pixelRect.size / 2;
+        tempRect2 = rectTransform2.rect;
+        tempRect2.position = camera.WorldToScreenPoint(rectTransform2.position);
+        tempRect2.position -= camera.pixelRect.size / 2;
+
+        if (Mathf.Abs(tempRect1.position.x - tempRect2.position.x) < tempRect1.size.x / 2 + tempRect2.size.x / 2 &&
+            Mathf.Abs(tempRect1.position.y - tempRect2.position.y) < tempRect1.size.y / 2 + tempRect2.size.y / 2)
+        {
+            return true;
+        }
+        return false;
+
+    }
+    public static bool RectOverlaps(Rect rect1, Rect rect2, Camera camera)
+    {
+        tempRect1 = rect1;
+        tempRect1.position = camera.WorldToScreenPoint(rect1.position);
+        tempRect1.position -= camera.pixelRect.size / 2;
+        tempRect2 = rect2;
+        tempRect2.position = camera.WorldToScreenPoint(rect2.position);
+        tempRect2.position -= camera.pixelRect.size / 2;
+
+        if (Mathf.Abs(tempRect1.position.x - tempRect2.position.x) < tempRect1.size.x / 2 + tempRect2.size.x / 2 &&
+            Mathf.Abs(tempRect1.position.y - tempRect2.position.y) < tempRect1.size.y / 2 + tempRect2.size.y / 2)
+        {
+            return true;
+        }
+        return false;
+
+    }
+
+    //public static bool RectOverlaps(RectTransform rectTransform1, RectTransform rectTransform2, Camera camera)
+    //{
+    //    tempRect1 = rectTransform1.rect;
+    //    tempRect1.position = camera.WorldToViewportPoint(rectTransform1.position);
+    //    tempRect1.position = tempRect1.position * camera.pixelRect.size - (camera.pixelRect.size / 2);
+    //    tempRect2 = rectTransform2.rect;
+    //    tempRect2.position = camera.WorldToViewportPoint(rectTransform2.position);
+    //    tempRect2.position = tempRect2.position * camera.pixelRect.size - (camera.pixelRect.size / 2);
+    //    //return tempRect1.Overlaps(tempRect2);
+
+
+    //    if (Mathf.Abs(tempRect1.position.x - tempRect2.position.x) < tempRect1.size.x / 2 + tempRect2.size.x / 2)
+    //    {
+    //        return true;
+    //    }
+    //    return false;
+    //}
+
+
+    /// <summary>
+    /// 将世界转本地
+    /// </summary>
+    /// <param name="worldPosition"></param>
+    /// <param name="targetRectTransform"></param>
+    /// <returns></returns>
+    public static Vector3 ConvertWorldToLocal(Vector3 worldPosition, Transform targetRectTransform)
+    {
+        return targetRectTransform.InverseTransformPoint(worldPosition);
     }
 }
 
