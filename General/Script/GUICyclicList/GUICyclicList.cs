@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,8 +10,8 @@ using static UnityEngine.RectTransform;
 /// 仅适用于垂直方向
 /// 需要插件odin
 /// ICyclicItem
+/// 实例化、循环逻辑都由本类控制，实例化时会返回回调onOnePrefab_ItemCreated，可以再此时设置item参数
 /// </summary>
-/// <typeparam name="T">列表中的元素</typeparam>
 public class GUICyclicList : MonoBehaviour
 {
     [Tooltip("interactable暂时无用")]
@@ -91,15 +92,17 @@ public class GUICyclicList : MonoBehaviour
 
 
     protected virtual void OnInit()
-    { 
-    
+    {
+
     }
     /// <summary>
     /// 此Init需要放在start中执行
+    /// onOnePrefab_ItemCreated当一个prefab完成了实例化，返回该prefab
     /// </summary>
-    public void Init()
+    public void Init(Action<ICyclicItem> onOnePrefab_ItemCreated = null, int Index = -1)
     {
         OnInit();
+        if (Index != -1) this.maxIndex = Index;
         prefab_Item_ICyclicItem = prefab_Item.GetComponent<ICyclicItem>();
         if (prefab_Item_ICyclicItem == null)
         {
@@ -132,8 +135,8 @@ public class GUICyclicList : MonoBehaviour
         {
             var width = rectTransform.rect.width - LR.x - LR.y;
             var height = rectTransform.rect.height - TB.x - TB.y;
-            num_H = (int)Mathf.Floor((width + spacing) / (itemSize.x + spacing));//y=bx+(x-1)a，y总宽，x单元格数量，b单元格宽度，a间隔；在这里我们的y,b,a都是已知的，求x
-            num_V = (int)Mathf.Floor((height + spacing) / (itemSize.y + spacing));
+            num_H = Mathf.Max(1, (int)Mathf.Floor((width + spacing) / (itemSize.x + spacing)));//y=bx+(x-1)a，y总宽，x单元格数量，b单元格宽度，a间隔；在这里我们的y,b,a都是已知的，求x
+            num_V = Mathf.Max(1, (int)Mathf.Floor((height + spacing) / (itemSize.y + spacing)));
         }
 
 
@@ -142,7 +145,8 @@ public class GUICyclicList : MonoBehaviour
         {
             for (int j = 0; j < num_H; j++)
             {
-                var tempItem = Instantiate(prefab_Item, scrollRect.content).GetComponent<ICyclicItem>(); ;
+                var tempItem = Instantiate(prefab_Item, scrollRect.content).GetComponent<ICyclicItem>();
+                onOnePrefab_ItemCreated?.Invoke(tempItem);
                 tempItem.SetGroupData(this);
                 tempItem.InitSet(itemSize.x, itemSize.y);
                 tempItem.GetRectTransform().anchoredPosition = new Vector2(GetIndexPosX(j + 1), GetIndexPosY(i + 1));
@@ -170,8 +174,8 @@ public class GUICyclicList : MonoBehaviour
     }
 
     protected virtual void OnRefresh()
-    { 
-    
+    {
+
     }
 
     public void Refresh()

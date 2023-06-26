@@ -1,10 +1,18 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.RectTransform;
 
-public class GUICyclicList_Horizontal: MonoBehaviour
+/// <summary>
+/// 多层循环列表
+/// 仅适用于垂直方向
+/// 需要插件odin
+/// ICyclicItem
+/// 实例化、循环逻辑都由本类控制，实例化时会返回回调onOnePrefab_ItemCreated，可以再此时设置item参数
+/// </summary>
+public class GUICyclicList_Horizontal : MonoBehaviour
 {
     [Tooltip("interactable暂时无用")]
     public bool interactable;
@@ -84,15 +92,17 @@ public class GUICyclicList_Horizontal: MonoBehaviour
 
 
     protected virtual void OnInit()
-    { 
-    
+    {
+
     }
     /// <summary>
     /// 此Init需要放在start中执行
+    /// onOnePrefab_ItemCreated当一个prefab完成了实例化，返回该prefab
     /// </summary>
-    public void Init()
+    public void Init(Action<ICyclicItem> onOnePrefab_ItemCreated = null, int Index = -1)
     {
         OnInit();
+        if (Index != -1) this.maxIndex = Index;
         prefab_Item_ICyclicItem = prefab_Item.GetComponent<ICyclicItem>();
         if (prefab_Item_ICyclicItem == null)
         {
@@ -124,8 +134,8 @@ public class GUICyclicList_Horizontal: MonoBehaviour
         {
             var width = rectTransform.rect.width - LR.x - LR.y;
             var height = rectTransform.rect.height - TB.x - TB.y;
-            num_H = (int)Mathf.Floor((width + spacing) / (itemSize.x + spacing));//y=bx+(x-1)a，y总宽，x单元格数量，b单元格宽度，a间隔；在这里我们的y,b,a都是已知的，求x
-            num_V = (int)Mathf.Floor((height + spacing) / (itemSize.y + spacing));
+            num_H = Mathf.Max(1, (int)Mathf.Floor((width + spacing) / (itemSize.x + spacing)));//y=bx+(x-1)a，y总宽，x单元格数量，b单元格宽度，a间隔；在这里我们的y,b,a都是已知的，求x
+            num_V = Mathf.Max(1, (int)Mathf.Floor((height + spacing) / (itemSize.y + spacing)));
         }
 
 
@@ -134,7 +144,8 @@ public class GUICyclicList_Horizontal: MonoBehaviour
         {
             for (int j = 0; j < num_V; j++)
             {
-                var tempItem = Instantiate(prefab_Item, scrollRect.content).GetComponent<ICyclicItem>() ;
+                var tempItem = Instantiate(prefab_Item, scrollRect.content).GetComponent<ICyclicItem>();
+                onOnePrefab_ItemCreated?.Invoke(tempItem);
                 tempItem.SetGroupData(this);
                 tempItem.InitSet(itemSize.x, itemSize.y);
                 tempItem.GetRectTransform().anchoredPosition = new Vector2(GetIndexPosX(i + 1), GetIndexPosY(j + 1));
@@ -162,8 +173,8 @@ public class GUICyclicList_Horizontal: MonoBehaviour
     }
 
     protected virtual void OnRefresh()
-    { 
-    
+    {
+
     }
 
     public void Refresh()//到此，记得检查刷新
@@ -239,7 +250,7 @@ public class GUICyclicList_Horizontal: MonoBehaviour
     #endregion;
     #region 循环列表核心移动逻辑
     /// <summary>
-    /// 是否向上移动
+    /// 是否向右移动
     /// </summary>
     void IsCyclicMove_Right()
     {
@@ -249,7 +260,7 @@ public class GUICyclicList_Horizontal: MonoBehaviour
                     ).x;
         int ori = -1;
         int target = -1;
-        //判断尾是否需要去首
+        //判断左是否需要去右
         if (itemDic[headIndex].GetRectTransform().transform.position.x < limit)
         {
             ori = headIndex;
@@ -265,7 +276,7 @@ public class GUICyclicList_Horizontal: MonoBehaviour
             itemDic.Remove(ori + i);
             itemDic.Add(target + i, temp);
 
-            //向上移动
+            //向右移动
             temp.GetRectTransform().anchoredPosition = new Vector2(
             itemDic[target - num_V].GetRectTransform().anchoredPosition.x + xincrement + spacing,
             temp.GetRectTransform().anchoredPosition.y);
@@ -283,11 +294,11 @@ public class GUICyclicList_Horizontal: MonoBehaviour
         endIndex = target;
         headIndex = headIndex + num_V;
         RefreshSize(itemDic[endIndex].GetRectTransform());
-        //Debug.Log("向上移动");
+        //Debug.Log("向右移动");
     }
 
     /// <summary>
-    /// 是否向下移动 
+    /// 是否向左移动 
     /// </summary>
     void IsCyclicMove_Left()
     {
@@ -297,7 +308,7 @@ public class GUICyclicList_Horizontal: MonoBehaviour
         ).x;
         int ori = -1;
         int target = -1;
-        ///判断首是否需要去尾
+        ///判断右是否需要去左
         if (itemDic[endIndex].GetRectTransform().transform.position.x > limit)
         {
             ori = endIndex;
@@ -313,7 +324,7 @@ public class GUICyclicList_Horizontal: MonoBehaviour
             itemDic.Remove(ori + i);
             itemDic.Add(target + i, temp);
 
-            //向下移动
+            //向左移动
             temp.GetRectTransform().anchoredPosition = new Vector2(
                 itemDic[target + num_V].GetRectTransform().anchoredPosition.x - xincrement - spacing,
                 temp.GetRectTransform().anchoredPosition.y);
@@ -323,21 +334,21 @@ public class GUICyclicList_Horizontal: MonoBehaviour
         headIndex = target;
         endIndex = endIndex - num_V;
         RefreshSize(itemDic[endIndex].GetRectTransform());
-        //Debug.Log("向下移动");
+        //Debug.Log("向左移动");
     }
 
     /// <summary>
     /// 刷新滑动区域大小
     /// </summary>
     /// <param name="rect"></param>
-    /// <param name="isDown"></param>
-    protected void RefreshSize(RectTransform rect, bool isDown = true)
+    /// <param name="isRight"></param>
+    protected void RefreshSize(RectTransform rect, bool isRight = true)
     {
         if (!rect.gameObject.activeSelf) return;
         var aimSize = Mathf.Abs(rect.anchoredPosition.x) + rect.rect.width / 2;
 
-        ///是否向下
-        if (isDown)
+        ///是否向右
+        if (isRight)
         {
             if (aimSize > scrollRect.content.rect.width)
             {
