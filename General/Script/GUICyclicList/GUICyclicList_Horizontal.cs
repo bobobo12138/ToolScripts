@@ -12,21 +12,19 @@ using static UnityEngine.RectTransform;
 /// ICyclicItem
 /// 实例化、循环逻辑都由本类控制，实例化时会返回回调onOnePrefab_ItemCreated，可以再此时设置item参数
 /// </summary>
-public class GUICyclicList_Horizontal : MonoBehaviour
+public class GUICyclicList_Horizontal : GUICyclicList_Base
 {
-    [Tooltip("interactable暂时无用")]
-    public bool interactable;
-    public bool autoInit = false;
-    [LabelText("自动计算数量")]
-    [Tooltip("勾选后，num_H,num_V将失效")]
-    public bool autoCalculateNum = false;//自动计算数量，勾选后，num_H,num_V将失效
-    public int count { get { return num_V * (num_H + catchNum_H); } }//当前总量
+    public int count { get { return num_V * (num_H + catchNum); } }//当前总量
     [HideInInspector]
     public Dictionary<int, ICyclicItem> itemDic;//索引从0开始
 
     #region 必要参数
+    [Header("Adaptive:将rect铺满，不出现多余;Sequential:顺序安置rect")]
+    [Header("注意若是Sequential最好设置更大的缓冲区")]
+    public CyclicListCalculateMode cyclicListCalculateMode = CyclicListCalculateMode.Adaptive;//计算方式，默认为自适应
     public GameObject prefab_Item;
     public ICyclicItem prefab_Item_ICyclicItem;
+    [HideInInspector]
     public int maxIndex;//最大数量
 
     [Header("行列")]
@@ -34,9 +32,9 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     public int num_H = 2;
     [SerializeField]
     public int num_V = 2;
-    [Header("行缓冲区，建议1-3")]
+    [Header("缓冲区，建议1-3")]
     [SerializeField]
-    public int catchNum_H = 1;//容错数量
+    public int catchNum = 1;//容错数量
     [Header("底部距离")]
     [SerializeField]
     public int buttomSpacing = 200;
@@ -58,14 +56,27 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     /// <summary> 程序会通过首尾行进行计算 </summary>
     int headIndex;  //首
     int endIndex;   //尾
-    float xincrement { get { return ((rectTransform.rect.width - LR.x - LR.y) - (num_H - 1) * spacing) / (num_H); } }//x增量
-    float yincrement { get { return ((rectTransform.rect.height - TB.x - TB.y) - (num_V - 1) * spacing) / (num_V); } }//y增量
+    float xincrement
+    {
+        get
+        {
+            if (cyclicListCalculateMode == CyclicListCalculateMode.Sequential)
+            {
+                return itemSize.x;
+            }
+            return ((rectTransform.rect.width - LR.x - LR.y) - (num_H - 1) * spacing) / (num_H);
+        }
+    }//x增量
+    float yincrement
+    {
+        get
+        {
+            return ((rectTransform.rect.height - TB.x - TB.y) - (num_V - 1) * spacing) / (num_V);
+        }
+    }//y增量
 
     RectTransform rectTransform;
     ScrollRect scrollRect;
-
-    //public Transform p;
-
     /// <summary>
     /// 可通过SetData或者在inspector中赋值
     /// 注意若有SetData则必须放在Init之前
@@ -82,7 +93,7 @@ public class GUICyclicList_Horizontal : MonoBehaviour
         this.maxIndex = maxIndex;
         this.num_H = num_H;
         this.num_V = num_V;
-        this.catchNum_H = catchNum_H;
+        this.catchNum = catchNum_H;
         LR = lR;
         TB = tB;
         this.spacing = spacing;
@@ -97,9 +108,9 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     }
     /// <summary>
     /// 此Init需要放在start中执行
-    /// onOnePrefab_ItemCreated当一个prefab完成了实例化，返回该prefab
+    /// onInstantiate当一个prefab完成了实例化，返回该prefab
     /// </summary>
-    public void Init(Action<ICyclicItem> onOnePrefab_ItemCreated = null, int Index = -1)
+    public void InstantiateItem(Action<ICyclicItem> onInstantiate = null, int Index = -1)
     {
         OnInit();
         if (Index != -1) this.maxIndex = Index;
@@ -132,20 +143,25 @@ public class GUICyclicList_Horizontal : MonoBehaviour
         //自动计算数量
         if (autoCalculateNum)
         {
+            Canvas.ForceUpdateCanvases();
             var width = rectTransform.rect.width - LR.x - LR.y;
             var height = rectTransform.rect.height - TB.x - TB.y;
             num_H = Mathf.Max(1, (int)Mathf.Floor((width + spacing) / (itemSize.x + spacing)));//y=bx+(x-1)a，y总宽，x单元格数量，b单元格宽度，a间隔；在这里我们的y,b,a都是已知的，求x
             num_V = Mathf.Max(1, (int)Mathf.Floor((height + spacing) / (itemSize.y + spacing)));
         }
-
+        if (num_H <= 0 || num_V <= 0)
+        {
+            Debug.LogError("无法容纳任何item，会导致除数为0！");
+            return;
+        }
 
         itemDic = new Dictionary<int, ICyclicItem>();
-        for (int i = 0; i < num_H + catchNum_H; i++)
+        for (int i = 0; i < num_H + catchNum; i++)
         {
             for (int j = 0; j < num_V; j++)
             {
                 var tempItem = Instantiate(prefab_Item, scrollRect.content).GetComponent<ICyclicItem>();
-                onOnePrefab_ItemCreated?.Invoke(tempItem);
+                onInstantiate?.Invoke(tempItem);
                 tempItem.SetGroupData(this);
                 tempItem.InitSet(itemSize.x, itemSize.y);
                 tempItem.GetRectTransform().anchoredPosition = new Vector2(GetIndexPosX(i + 1), GetIndexPosY(j + 1));
@@ -207,11 +223,6 @@ public class GUICyclicList_Horizontal : MonoBehaviour
         Debug.Log("刷新GUICyclicList");
     }
 
-    protected virtual void Start()
-    {
-        if (autoInit) Init();
-    }
-
 
     //private void Update()
     //{
@@ -256,7 +267,7 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     {
         var limit = (int)transform.parent.TransformPoint
                     (
-                        new Vector3(rectTransform.localPosition.x - rectTransform.rect.width / 2 - prefab_Item_ICyclicItem.GetRectTransform().rect.width / 2, 0, 0)
+                        new Vector3(rectTransform.localPosition.x - rectTransform.rect.width / 2 - itemSize.x / 2, 0, 0)
                     ).x;
         int ori = -1;
         int target = -1;
@@ -304,7 +315,7 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     {
         var limit = (int)transform.parent.TransformPoint
             (
-                 new Vector3(rectTransform.localPosition.x + rectTransform.rect.width / 2 + prefab_Item_ICyclicItem.GetRectTransform().rect.width / 2, 0, 0)
+                 new Vector3(rectTransform.localPosition.x + rectTransform.rect.width / 2 + itemSize.x / 2, 0, 0)
         ).x;
         int ori = -1;
         int target = -1;
@@ -345,21 +356,21 @@ public class GUICyclicList_Horizontal : MonoBehaviour
     protected void RefreshSize(RectTransform rect, bool isRight = true)
     {
         if (!rect.gameObject.activeSelf) return;
-        var aimSize = Mathf.Abs(rect.anchoredPosition.x) + rect.rect.width / 2;
+        var aimSize = Mathf.Abs(rect.anchoredPosition.x) + rect.rect.width / 2 + buttomSpacing;
 
         ///是否向右
         if (isRight)
         {
             if (aimSize > scrollRect.content.rect.width)
             {
-                scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, aimSize + buttomSpacing);
+                scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, aimSize);
             }
         }
         else
         {
             if (aimSize < scrollRect.content.rect.width)
             {
-                scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, aimSize + buttomSpacing);
+                scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, aimSize);
             }
         }
 
