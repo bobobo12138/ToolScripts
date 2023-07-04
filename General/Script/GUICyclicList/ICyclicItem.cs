@@ -24,7 +24,8 @@ public interface ICyclicItem
     /// 得到后记得转换类型
     /// </summary>
     /// <param name="group"></param>
-    void SetGroupData(Object group); 
+    void SetGroupData(Object group);
+
 
     Object GetObject();
     RectTransform GetRectTransform();

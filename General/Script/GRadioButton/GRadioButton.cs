@@ -22,7 +22,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public bool isSelected;
     [SerializeField]
     bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
-
+    public bool isPreciseClick = false;//是否精确点击，点击时移动超过20个像素不会触发点击事件
 
     //单击与取消时的显示
     [Header("焦点时的图片/非焦点时的图片")]
@@ -38,7 +38,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
 
     Transform aniTrans;
-
+    Vector2 clickDownPos;
     protected void Awake()
     {
         if (isAwakeInit) Init();
@@ -46,7 +46,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void OnEnable()
     {
-        transform.localScale = Vector3.one;
+        transform.localScale = Vector2.one;
     }
 
     /// <summary>
@@ -198,6 +198,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         if (grayMask != null)
             grayMask.SetActive(true);
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -211,8 +212,10 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (isPreciseClick) clickDownPos = eventData.position;
         if (!interactable) return;
         if (!isAni) return;
+
         StopAllCoroutines();
         StartCoroutine(Ani_Down());
     }
@@ -220,15 +223,21 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!interactable) return;
+        if (isPreciseClick)
+        {
+            //精确点击
+            if (Vector2.SqrMagnitude(eventData.position - clickDownPos) > 400) return;
+        }
+
         Click();
     }
     public void OnPointerUp(PointerEventData eventData)
     {
         if (!interactable) return;
         if (!isAni) return;
+
         StopAllCoroutines();
         StartCoroutine(Ani_Up());
-
     }
 
     /// <summary>
