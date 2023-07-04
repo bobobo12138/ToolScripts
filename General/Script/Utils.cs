@@ -6,7 +6,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.WSA;
 using static UnityEngine.RectTransform;
 
 public class Utils
