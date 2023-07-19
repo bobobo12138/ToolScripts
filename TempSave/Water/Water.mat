@@ -32,7 +32,7 @@ Material:
   - _ENABLE_FOG_ON_TRANSPARENT
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
@@ -43,8 +43,8 @@ Material:
   - MOTIONVECTORS
   - TransparentDepthPostpass
   - TransparentBackface
-  - TransparentDepthPrepass
   - RayTracingPrepass
+  - TransparentDepthPrepass
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -111,7 +111,7 @@ Material:
     - _SeaWaveSmooth: 0
     - _SeaWaveStep: 0.603
     - _SeaWaveStrength: 0.18
-    - _Smooth: 0.99
+    - _Smooth: 0.97
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 0
@@ -144,8 +144,8 @@ Material:
     - _ZWrite: 0
     - __1: -0.53
     - __2: 1
-    - __3: 0
-    - __4: 24.9
+    - __3: 0.9
+    - __4: 10
     m_Colors:
     - _DeepWaterColor: {r: 0.1424439, g: 0.83308107, b: 0.9150943, a: 0.92156863}
     - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
@@ -154,5 +154,5 @@ Material:
     - _ShallowWaterColor: {r: 0.8915094, g: 0.9936182, b: 1, a: 0.42745098}
     - _WaveNormalVector: {r: 20, g: 20, b: 0, a: 0}
     - _WaveNormalVector_2: {r: 0.22, g: 0.2, b: 0, a: 0}
-    - __5: {r: 0, g: 0.81717014, b: 1, a: 1}
+    - __5: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
