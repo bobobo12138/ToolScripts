@@ -5,7 +5,19 @@ Shader "Unlit/HDRPGeoGrass"
         _MainTex ("Texture", 2D) = "white" {}
         _TopColor("TopColor",Color) = (1, 1, 1, 1)
         _BottomColor("BottomColor",Color) = (1, 1, 1, 1)
+        _BendRotationRandom("Bend Rotation Random", Range(0, 1)) = 0.2
+        _RandomGroupNum("Random Group Num", Range(1,40)) = 1//
         //_ColorLerp("ColorLerp",Range(0, 1)) = 0.5
+        [Space(20)]
+        _BladeWidth("Blade Width", Float) = 0.05
+        _BladeWidthRandom("Blade Width Random", Float) = 0.02
+        _BladeHeight("Blade Height", Float) = 0.5//
+        _BladeHeightRandom("Blade Height Random", Float) = 0.3
+
+        [Space(20)]
+        _WindDistortionMap("Wind Distortion Map", 2D) = "white" {}
+        _WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
+        _WindStrength("Wind Strength", Float) = 1
     }
     SubShader
     {
@@ -53,6 +65,21 @@ Shader "Unlit/HDRPGeoGrass"
             float4 _BottomColor;
             //float _ColorLerp;
             float4 _MainTex_ST;
+            float _BendRotationRandom;
+            int _RandomGroupNum;
+
+
+            float _BladeHeight;
+            float _BladeHeightRandom;	
+            float _BladeWidth;
+            float _BladeWidthRandom;
+
+
+            sampler2D _WindDistortionMap;
+            float4 _WindDistortionMap_ST;
+            float2 _WindFrequency;
+            float _WindStrength;
+
 
             vertOutput vert (appdata v)
             {
@@ -78,7 +105,7 @@ Shader "Unlit/HDRPGeoGrass"
 			{
 				return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
 			}
-			float3x3 angleAxis3x3(float angle, float3 axis)
+			float3x3 AngleAxis3x3(float angle, float3 axis)
 			{
 				float c, s;
 				sincos(angle, s, c);
@@ -95,7 +122,7 @@ Shader "Unlit/HDRPGeoGrass"
 					t * x * z - s * y, t * y * z + s * x, t * z * z + c
 				);
 			}
-            [maxvertexcount(3)]
+            [maxvertexcount(120)]
             void geo(triangle vertOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
                 //float3 pos = (IN[0]+IN[1]+IN[2])/3;
@@ -103,22 +130,36 @@ Shader "Unlit/HDRPGeoGrass"
                 float3 vNormal = IN[2].normal;
                 float4 vTangent = IN[2].tangent;
                 float3 vBinormal = cross(vNormal, vTangent) * vTangent.w;
-                //切线转局部矩阵
-                float3x3 tangentToLocal = float3x3(
-                	vTangent.x, vBinormal.x, vNormal.x,
-                	vTangent.y, vBinormal.y, vNormal.y,
-                	vTangent.z, vBinormal.z, vNormal.z
-                	);
-                //随机z轴旋转矩阵
-                float3x3 facingRotationMatrix = angleAxis3x3(rand(pos) * 3.14 * 2, float3(0, 0, 1));
-                //切线矩阵乘以旋转矩阵得到最终矩阵
-                float3x3 transformationMatrix = mul(tangentToLocal, facingRotationMatrix);
 
-                triStream.Append(VertexOutput(pos +mul(transformationMatrix, float3(0.5, 0, 0)),float2(0.5,0)));
-                
-                triStream.Append(VertexOutput(pos +mul(transformationMatrix, float3(-0.5, 0, 0)),float2(-0.5,0)));
-                
-                triStream.Append(VertexOutput(pos +mul(transformationMatrix, float3(0, 0, 1)),float2(0,1)));
+                float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+                float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
+                float3 wind = normalize(float3(windSample.x, windSample.y, 0));
+                float3x3 windRotation = AngleAxis3x3(UNITY_PI * windSample, wind);//风向旋转矩阵
+
+                for(int i =0;i< _RandomGroupNum ;i++)
+                {
+                    float height = (rand(pos.zyx+i) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
+                    float width = (rand(pos.xzy+i) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
+                    //切线转局部矩阵
+                    float3x3 tangentToLocal = float3x3(
+                    	vTangent.x, vBinormal.x, vNormal.x,
+                    	vTangent.y, vBinormal.y, vNormal.y,
+                    	vTangent.z, vBinormal.z, vNormal.z
+                    	);
+                    //随风摇摆旋转矩阵
+                    float3x3 bendRotationMatrix = AngleAxis3x3(rand(pos+i) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
+                    //随机z轴旋转矩阵
+                    float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos+i) * 3.14 * 2, float3(0, 0, 1));
+                    //切线矩阵乘以旋转矩阵得到transformationMatrix矩阵，之后再transformationMatrix矩阵*摇摆矩阵
+                    float3x3 transformationMatrix = mul(mul(mul(tangentToLocal,windRotation), facingRotationMatrix), bendRotationMatrix);
+
+
+                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(width, 0, 0)),float2(0.5,0)));
+                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1))+ mul(transformationMatrix, float3(-width, 0, 0)),float2(-0.5,0)));
+                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(0, 0, height)),float2(0,1)));
+                    triStream.RestartStrip();
+                }
+
             }
 
             fixed4 frag (geometryOutput i) : SV_Target
