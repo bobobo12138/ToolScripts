@@ -1,0 +1,34 @@
+{
+    "name": "RayInputSystem",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "c05d7b8c-488c-4ea6-8cf5-14483f6898b6",
+            "actions": [
+                {
+                    "name": "RayButton",
+                    "type": "Button",
+                    "id": "ec08ade9-5d88-4a5a-aa54-dd68ed03b18e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ba31e6b6-fc98-4d8e-96f8-5bebc4ed6cb3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RayButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
