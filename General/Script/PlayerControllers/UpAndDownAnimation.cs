@@ -9,6 +9,7 @@ public class UpAndDownAnimation : MonoBehaviour
     public bool isPlaying { get { return _isPlaying; } private set { _isPlaying = value; } }
     public float speed = 1;
     public float heightMul = 1;
+    public float stopDeadzone = 1;//停止的死区
 
     float _time = 0;
     float y = 0;
@@ -57,7 +58,7 @@ public class UpAndDownAnimation : MonoBehaviour
         if (transform.position.y - y > 0.1f) return;//只有跳完一次才判断停止
 
         //若距离小于1则停止
-        if (Vector3.Magnitude(startTrans.position - end) < 1)
+        if (Vector3.Magnitude(startTrans.position - end) < stopDeadzone)
         {
             transform.position = new Vector3(transform.position.x, y, transform.position.z);
             isPlaying = false;
