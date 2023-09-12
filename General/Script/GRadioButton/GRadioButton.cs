@@ -16,14 +16,6 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Action onExit;//退出事件,使用+=
     public GRadioButtonLoader gRadioButtonLoader;//指向的组，可拖动可代码赋值
 
-    public bool interactable = true;
-    public bool isAlwaysCanBeClick = false;//总是可以被点击，将无视单选按钮被选中后不可再次点击的规则
-    public bool isAni = false;//是否小动画
-    public bool isSelected;
-    [SerializeField]
-    bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
-    public bool isPreciseClick = false;//是否精确点击，点击时移动超过20个像素不会触发点击事件
-
     //单击与取消时的显示
     [Header("焦点时的图片/非焦点时的图片")]
     [Header("为空则代表不会变化")]
@@ -36,17 +28,16 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField]
     GameObject grayMask;
 
-
+    public bool interactable = true;
+    public bool isAni = false;//是否小动画
+    public bool isSelected;
+    [SerializeField]
+    bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
     Transform aniTrans;
-    Vector2 clickDownPos;
+
     protected void Awake()
     {
         if (isAwakeInit) Init();
-    }
-
-    private void OnEnable()
-    {
-        transform.localScale = Vector2.one;
     }
 
     /// <summary>
@@ -74,38 +65,35 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (clickTrans != null)
             clickTrans.SetActive(false);
     }
+
+    public void RemoveAllAction()
+    {
+        onSelected = () =>
+        {
+            SetSelected();
+        };
+        onExit = () =>
+        {
+            SetExit();
+        };
+    }
+
     /// <summary>
     /// 可主动调用的单击事件
     /// </summary>
     public void Click()
     {
-        if (isAlwaysCanBeClick)
-        {
-            //总是执行操作
-            onSelected();
-            if (gRadioButtonLoader.last != this)
-            {
-                if (gRadioButtonLoader.last != null)
-                {
-                    gRadioButtonLoader.last.onExit();
-                }
-                gRadioButtonLoader.last = this;
-            }
-            return;
-        }
-
         if (gRadioButtonLoader == null)
         {
             onSelected();
         }
         else
         {
-            //若上一个按钮是自己，不做任何操作
-            if (gRadioButtonLoader.last != this)
+            if (gRadioButtonLoader.last != this)///值改变时
             {
                 if (gRadioButtonLoader.last != null)
                 {
-                    gRadioButtonLoader.last.onExit();
+                    gRadioButtonLoader.last.onExit();//执行组内上一个的exit
                 }
                 gRadioButtonLoader.last = this;
                 onSelected();
@@ -118,21 +106,6 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     /// </summary>
     public void Click_NoOnSelectedAction()
     {
-        if (isAlwaysCanBeClick)
-        {
-            //总是执行操作
-            SetSelected();
-            if (gRadioButtonLoader.last != this)
-            {
-                if (gRadioButtonLoader.last != null)
-                {
-                    gRadioButtonLoader.last.onExit();
-                }
-                gRadioButtonLoader.last = this;
-            }
-            return;
-        }
-
         if (gRadioButtonLoader == null)
         {
             SetSelected();
@@ -151,7 +124,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    protected void SetSelected()
+    protected  void SetSelected()
     {
         if (disTrans != null)
             disTrans.SetActive(false);
@@ -198,7 +171,6 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         if (grayMask != null)
             grayMask.SetActive(true);
-
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -212,10 +184,8 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isPreciseClick) clickDownPos = eventData.position;
         if (!interactable) return;
         if (!isAni) return;
-
         StopAllCoroutines();
         StartCoroutine(Ani_Down());
     }
@@ -223,21 +193,15 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!interactable) return;
-        if (isPreciseClick)
-        {
-            //精确点击
-            if (Vector2.SqrMagnitude(eventData.position - clickDownPos) > 400) return;
-        }
-
         Click();
     }
     public void OnPointerUp(PointerEventData eventData)
     {
         if (!interactable) return;
         if (!isAni) return;
-
         StopAllCoroutines();
         StartCoroutine(Ani_Up());
+
     }
 
     /// <summary>

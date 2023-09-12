@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ñ­»·ÔªËØËùĞè¼Ì³ĞµÄ½Ó¿Ú
+/// å¾ªç¯å…ƒç´ æ‰€éœ€ç»§æ‰¿çš„æ¥å£
 /// </summary>
 public interface ICyclicItem
 {
     /// <summary>
-    /// ³õÊ¼»¯£¬»á·µ»Ø¿í¸ß
+    /// åˆå§‹åŒ–ï¼Œä¼šè¿”å›å®½é«˜
     /// </summary>
     /// <param name="_width"></param>
     /// <param name="_height"></param>
     void InitSet(float _width = 0, float _height = 0);
     /// <summary>
-    /// »á·µ»ØÔÙÁĞ±íÖĞµÄÎ»ÖÃ
-    /// »áÔÚ³õÊ¼Óë·¢Éú½»»»Ê±´¥·¢
+    /// ä¼šè¿”å›å†åˆ—è¡¨ä¸­çš„ä½ç½®
+    /// ä¼šåœ¨åˆå§‹ä¸å‘ç”Ÿäº¤æ¢æ—¶è§¦å‘
     /// </summary>
     /// <param name="index"></param>
     void SetIndex(int index);
-    /// <summary>
-    /// ÉèÖÃËùÒÀ¸½µÄgroup
-    /// µÃµ½ºó¼ÇµÃ×ª»»ÀàĞÍ
-    /// </summary>
-    /// <param name="group"></param>
-    void SetGroupData(Object group);
 
 
-    Object GetObject();
+
+    void Refresh();
+    ///// <summary>
+    ///// è®¾ç½®æ•°æ®
+    ///// </summary>
+    ///// <param name="group"></param>
+    //void SetData(object group);
+
+
+    //Object GetObject();
     RectTransform GetRectTransform();
     //int GetIndex();
 

@@ -6,11 +6,11 @@ public abstract class GObjPoolBase<T>where T : MonoBehaviour
 {
     protected Stack<T> pool = new Stack<T>();
     protected Transform parent;
-    protected T prototype;//注意原型不进行初始化
+    protected T prototype;//娉ㄦ剰鍘熷瀷涓嶈繘琛屽垵濮嬪寲
 
 
     /// <summary>
-    /// 封装的实例化与初始化
+    /// 灏佽鐨勫疄渚嬪寲涓庡垵濮嬪寲
     /// </summary>
     /// <returns></returns>
     protected T Instantiate()
@@ -22,7 +22,7 @@ public abstract class GObjPoolBase<T>where T : MonoBehaviour
 
     protected void InitObj(T obj)
     {
-        //进行初始化，若继承了IObjInit接口的话
+        //杩涜鍒濆鍖栵紝鑻ョ户鎵夸簡IObjInit鎺ュ彛鐨勮瘽
         if (obj is IObjInit)
         {
             var temp = obj as IObjInit;

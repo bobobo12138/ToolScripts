@@ -67,6 +67,35 @@ public class Utils
         return new Vector2(Random.Range(min.x, max.x), Random.Range(min.y, max.y));
     }
 
+    /// <summary>
+    /// 从列表中找出两个不同的元素
+    /// </summary>
+    /// <param name="inputList"></param>
+    /// <returns></returns>
+    public static List<string> GetRandomDistinctElements(List<string> inputList, int count)
+    {
+        if (inputList == null || count <= 0 || count > inputList.Count)
+        {
+            Debug.LogError("输入参数无效");
+            return null;
+        }
+
+        List<string> result = new List<string>();
+        System.Random random = new System.Random();
+
+        while (result.Count < count)
+        {
+            int randomIndex = random.Next(0, inputList.Count);
+            string randomElement = inputList[randomIndex];
+
+            if (!result.Contains(randomElement))
+            {
+                result.Add(randomElement);
+            }
+        }
+
+        return result;
+    }
 
 
 

@@ -1,36 +1,36 @@
-using DG.Tweening;
-using System.Collections;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
-//public enum ChildPanelType
-//{
-//    normal,             //³£¹æÀàĞÍ£¬ÎŞ¶¯»­
-//    bottomToCenterAni,  //´ÓÏÂÍùÉÏµÄÉÏÀ­¿òÀàĞÍ£¬´ÓÏÂÍùÉÏµÄ¶¯»­
-//}
-
 /// <summary>
-/// ×ÓÃæ°å»ùÀà
-/// »òĞíĞèÒªĞŞ¸Ä£¬ÓµÓĞÖØĞ´µÄĞé·½·¨£¬Í¬Ê±²ÉÓÃÎ¯ÍĞ
+/// å­é¢æ¿åŸºç±»
+/// æˆ–è®¸éœ€è¦ä¿®æ”¹ï¼Œæ‹¥æœ‰é‡å†™çš„è™šæ–¹æ³•ï¼ŒåŒæ—¶é‡‡ç”¨å§”æ‰˜
 /// </summary>
 public abstract class ChildPanelBase : GBaseMono
 {
-    //[SerializeField]
-    //float aniSpeed = 1;
-    //public ChildPanelType type;
+    //public bool isHaveRadioButton = false;
+
+    ////æœ¬ç•Œé¢ç•Œé¢å¯¹åº”æŒ‰é’®ï¼ŒæŸäº›æƒ…å†µä¸‹ä¼šå‡ºç°é¢æ¿-å¯¹åº”-æŒ‰é’®çš„æƒ…å†µï¼Œè°ƒç”¨æŒ‰é’®äº‹ä»¶æˆ–è®¸æ¯”å¼ºåˆ¶showæ›´åˆç†
+    ////å¯ä»¥æ‰‹åŠ¨è®¾ç½®å€¼
+    //[ShowIf("isHaveRadioButton",true)]
+    //public GRadioButton clickRadioButton;
 
     [HideInInspector]
     public RectTransform rectTransform;
     [HideInInspector]
     public bool isShow;
-    [Header("ÊÇ·ñ×ÜÊÇÏÔÊ¾")]
-    public bool isAlwaysShow = false;
 
+    public bool isPullDownPanel = false;
+    [EnableIf("isPullDownPanel", true)]
+    [SerializeField]
+    public UIFollowMouse uIFollowMouse;//è·ŸéšåŒºåŸŸï¼Œè¦ä½¿ç”¨çš„è¯éœ€è¦åœ¨Initä¸­èµ‹å€¼,åŠ¨ç”»éƒ½æ˜¯ä¾æ‰˜ä¸æ­¤å¯¹è±¡
+    [EnableIf("isPullDownPanel", true)]
+    [SerializeField]
+    protected GRadioButton deChooseBG_Button;//èƒŒæ™¯æŒ‰é’®
 
+    //å­é¢æ¿åˆ—è¡¨ï¼Œç”¨äºåˆ‡æ¢å­é¢æ¿ï¼Œå­é¢æ¿å¯æ— é™åµŒå¥—ï¼Œä½†æ˜¯æ¯æ¬¡æŸ¥æ‰¾éƒ½è¦åœ¨å­é¢æ¿ä¸­éå†ï¼Œè¿˜æ²¡åšä¼˜åŒ–
     [SerializeField]
-    public UIFollowMouse uIFollowMouse;//¸úËæÇøÓò£¬ÒªÊ¹ÓÃµÄ»°ĞèÒªÔÚInitÖĞ¸³Öµ,¶¯»­¶¼ÊÇÒÀÍĞÓë´Ë¶ÔÏó
-    [SerializeField]
-    protected GRadioButton deChooseBG_Button;//±³¾°°´Å¥
+    protected List<ChildPanelBase> childPanels = new List<ChildPanelBase>();
 
     public sealed override void Init()
     {
@@ -39,34 +39,24 @@ public abstract class ChildPanelBase : GBaseMono
 
         if (uIFollowMouse != null)
         {
-            ///×ÓÀàĞèÒªÎªuIFollowMouse³õÊ¼»¯£¬ÈôĞèÒªÊ¹ÓÃµÄ»°
+            ///å­ç±»éœ€è¦ä¸ºuIFollowMouseåˆå§‹åŒ–ï¼Œè‹¥éœ€è¦ä½¿ç”¨çš„è¯
             deChooseBG_Button.onSelected += () => { uIFollowMouse.PlaySetMin(); };
             uIFollowMouse.AfterOffsetMax += AfterShowAni;
-            uIFollowMouse.AfterOffsetMax += () =>
-            {
-                deChooseBG_Button.gameObject.SetActive(true);//ÉèÖÃµ²°å
-
-            };//ÉèÖÃµ²°å}
-
             uIFollowMouse.AfterOffsetMin += AfterHideAni;
-            uIFollowMouse.AfterOffsetMin += () =>
-            {
-                SetActive(false);
-                deChooseBG_Button.gameObject.SetActive(false);//ÉèÖÃµ²°å
-            };//ÈôÊÇ uIFollowMouse´æÔÚ£¬¶¯»­»á×Ô¶¯Òş²Ø
+            uIFollowMouse.AfterOffsetMin += () => { SetActive(false); };//è‹¥æ˜¯ uIFollowMouseå­˜åœ¨ï¼ŒåŠ¨ç”»ä¼šè‡ªåŠ¨éšè—
         }
 
         OnInit();
     }
     /// <summary>
-    /// Ç¿ÖÆÏÔÊ¾¡¢Òş²Ø
-    /// Ö»ÓĞ´Ë½Ó¿Ú»áµ÷ÓÃ×ÓÃæ°åµÄOnShow¡¢OnHide
-    /// ×¢Òâ´Ë·½·¨»á´¥·¢¶¯»­£¨Èô´øÓĞUIFollow×é¼şµÄ»°£©£¬ÇëÎğÔÚ¶¯»­»Øµ÷ÖĞ´¥·¢´Ë·½·¨
+    /// å¼ºåˆ¶æ˜¾ç¤ºã€éšè—
+    /// åªæœ‰æ­¤æ¥å£ä¼šè°ƒç”¨å­é¢æ¿çš„OnShowã€OnHide
+    /// æ³¨æ„æ­¤æ–¹æ³•ä¼šè§¦å‘åŠ¨ç”»ï¼ˆè‹¥å¸¦æœ‰UIFollowç»„ä»¶çš„è¯ï¼‰ï¼Œè¯·å‹¿åœ¨åŠ¨ç”»å›è°ƒä¸­è§¦å‘æ­¤æ–¹æ³•
     /// </summary>
     /// <param name="_isShow"></param>
     public void Show(bool _isShow = true)
     {
-        ///¸ù¾İ_isShowµ÷ÓÃOnShow»òOnHide
+        ///æ ¹æ®_isShowè°ƒç”¨OnShowæˆ–OnHide
         if (_isShow)
         {
             OnShow();
@@ -82,13 +72,13 @@ public abstract class ChildPanelBase : GBaseMono
                 return;
             }
         }
-        ///ÉèÖÃÏÔÊ¾
+        ///è®¾ç½®æ˜¾ç¤º
         SetActive(_isShow);
     }
 
     /// <summary>
-    /// Ç¿ÖÆÉèÖÃÏÔÊ¾
-    /// ´Ë·½·¨²»»áµ÷¶¯¶¯»­
+    /// å¼ºåˆ¶è®¾ç½®æ˜¾ç¤º
+    /// æ­¤æ–¹æ³•ä¸ä¼šè°ƒåŠ¨åŠ¨ç”»
     /// </summary>
     /// <param name="_isShow"></param>
     public void SetActive(bool _isShow = true)
@@ -96,10 +86,38 @@ public abstract class ChildPanelBase : GBaseMono
         isShow = _isShow;
         gameObject.SetActive(_isShow);
         if (deChooseBG_Button != null)
-            deChooseBG_Button.gameObject.SetActive(_isShow);//ÉèÖÃµ²°å
+            deChooseBG_Button.gameObject.SetActive(_isShow);//è®¾ç½®æŒ¡æ¿
     }
 
-    ///¿ÉÒÔÔÚ´Ë´¦Ö¸¶¨¸ÃÃæ°åµÄtype
+    /// <summary>
+    /// è·å–å½“å‰childpanelbaseä¸‹çš„å­é¢æ¿ï¼Œå’Œgetcomponentæ€æƒ³ä¸€è‡´
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetChildPanel<T>() where T : ChildPanelBase
+    {
+        foreach (var v in childPanels)
+        {
+            if (v is T) return v as T;
+        }
+        Debug.LogError("æœªæ‰¾åˆ°å­é¢æ¿" + nameof(T));
+        return null;
+    }
+    public void AddChildPanel(ChildPanelBase _childPanelBase)
+    {
+        if (!childPanels.Contains(_childPanelBase))
+            childPanels.Add(_childPanelBase);
+    }
+
+    public void RemoveChildPanel(ChildPanelBase _childPanelBase)
+    {
+        if (childPanels.Contains(_childPanelBase))
+            childPanels.Remove(_childPanelBase);
+    }
+
+    public virtual void Recycle() { }
+
+    ///å¯ä»¥åœ¨æ­¤å¤„æŒ‡å®šè¯¥é¢æ¿çš„type
     protected abstract void OnInit();
     public sealed override void Refresh()
     {
@@ -112,7 +130,6 @@ public abstract class ChildPanelBase : GBaseMono
     protected virtual void AfterShowAni() { }
     protected virtual void OnHideAni() { }
     protected virtual void AfterHideAni() { }
-
 
 
 }
