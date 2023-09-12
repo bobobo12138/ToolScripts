@@ -67,6 +67,35 @@ public class Utils
         return new Vector2(Random.Range(min.x, max.x), Random.Range(min.y, max.y));
     }
 
+    /// <summary>
+    /// 从列表中找出两个不同的元素
+    /// </summary>
+    /// <param name="inputList"></param>
+    /// <returns></returns>
+    public static List<string> GetRandomDistinctElements(List<string> inputList, int count)
+    {
+        if (inputList == null || count <= 0 || count > inputList.Count)
+        {
+            Debug.LogError("输入参数无效");
+            return null;
+        }
+
+        List<string> result = new List<string>();
+        System.Random random = new System.Random();
+
+        while (result.Count < count)
+        {
+            int randomIndex = random.Next(0, inputList.Count);
+            string randomElement = inputList[randomIndex];
+
+            if (!result.Contains(randomElement))
+            {
+                result.Add(randomElement);
+            }
+        }
+
+        return result;
+    }
 
 
 
@@ -301,6 +330,16 @@ public class Utils
         StreamReader streamreader = new StreamReader(jsonPath);
         JsonReader js = new JsonReader(streamreader);
         return js;
+    }
+
+    public static byte[] GetBytesFromPath(string path)
+    {
+        FileStream stream = new FileInfo(path).OpenRead();
+        byte[] buffer = new byte[stream.Length];
+        stream.Read(buffer, 0, System.Convert.ToInt32(stream.Length));
+        stream.Close();
+        stream.Dispose();
+        return buffer;
     }
 
     /// <summary>
@@ -663,6 +702,28 @@ public class Utils
     }
 
 
+    /// <summary>
+    /// 最小平铺，将user长轴铺满max
+    /// 返回乘数
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="max"></param>
+    /// <returns></returns>
+    public static float MinTiled(Vector2 user, Vector2 max)
+    {
+        float x = max.x / user.x;
+        float y = max.y / user.y;
+
+        if (x >= y)
+        {
+            return y;
+        }
+        else
+        {
+            return x;
+        }
+    }
+
 
     /// <summary>
     /// 字符串转枚举
@@ -781,6 +842,21 @@ public class Utils
     public static Vector3 ConvertWorldToLocal(Vector3 worldPosition, Transform targetRectTransform)
     {
         return targetRectTransform.InverseTransformPoint(worldPosition);
+    }
+
+    /// <summary>
+    /// renderTexture2texutre
+    /// </summary>
+    /// <param name="rTex"></param>
+    /// <returns></returns>
+    public static Texture2D RenderTexture2Texture2D(RenderTexture rTex)
+    {
+        Texture2D tex = new Texture2D(rTex.width, rTex.height, TextureFormat.RGB24, false);
+        // ReadPixels looks at the active RenderTexture.
+        RenderTexture.active = rTex;
+        tex.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
+        tex.Apply();
+        return tex;
     }
 }
 

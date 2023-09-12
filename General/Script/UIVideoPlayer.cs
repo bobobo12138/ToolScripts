@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Game.UI;
 using Sirenix.OdinInspector;
@@ -20,6 +21,8 @@ public class UIVideoPlayer : MonoBehaviour
     public bool isPlaying;
     [Tooltip("是否使用video的尺寸，注意只有开始播放视频后（视频准备好）才知道视频尺寸")]
     public bool isUseVideoSize = false;
+    [Tooltip("是否进行消失渐变动画")]
+    public bool isFadeAnimation = true;
     #endregion
 
     [Header("是否需要进度条")]
@@ -56,11 +59,13 @@ public class UIVideoPlayer : MonoBehaviour
     [SerializeField]
     [ShowIf("coverType", CoverType.RawImage)]
     RawImage coverRawImage;//rawimg封面，后续需要拓展选择枚举，选择显示某一个
+    [SerializeField]
+    CanvasGroup coverParent;//封面的父物体，用于隐藏封面
     #endregion
 
     Rect oriRect = new Rect(0, 0, 0, 0);//原始rect
-    Action afterOnPlay;//开始播放后的回调
-
+    Action onPlay;//开始播放后的回调
+    Action afterPreload;//预加载后的回调
     public void Init()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -69,6 +74,12 @@ public class UIVideoPlayer : MonoBehaviour
         videoPlayer.prepareCompleted += OnVideoPrepareCompleted;
         isInit = true;
     }
+
+    private void Start()
+    {
+        if (coverParent == null) Debug.LogError("coverParent没有赋值");
+    }
+
     private void Update()
     {
         UpdateSlider();
@@ -79,7 +90,7 @@ public class UIVideoPlayer : MonoBehaviour
     /// </summary>
     /// <param name="url">mp4路径</param>
     /// <param name="cover">封面</param>
-    public void SetData(string url, Sprite cover)
+    public void SetData(string url, Sprite cover, Action afterPreload = null)
     {
         if (coverType != CoverType.Image)
         {
@@ -90,8 +101,9 @@ public class UIVideoPlayer : MonoBehaviour
         videoPlayer.url = url;
         if (cover != null)
             coverImg.sprite = cover;
+       this.afterPreload = afterPreload;
     }
-    public void SetData(string url, Texture cover)
+    public void SetData(string url, Texture cover, Action afterPreload = null)
     {
         if (coverType != CoverType.RawImage)
         {
@@ -101,10 +113,13 @@ public class UIVideoPlayer : MonoBehaviour
         videoPlayer.url = url;
         if (cover != null)
             coverRawImage.texture = cover;
+        this.afterPreload = afterPreload;
+
     }
-    public void SetData(string url)
+    public void SetData(string url, Action afterPreload = null)
     {
         videoPlayer.url = url;
+        this.afterPreload = afterPreload;
     }
 
 
@@ -129,11 +144,11 @@ public class UIVideoPlayer : MonoBehaviour
             Utils.MaxTiled(rectTransform, rectTransform.rect.size, oriRect.size);
         }
 
-        coverImg.DOKill();
-        coverImg.gameObject.SetActive(false);
+        coverParent.DOKill();
+        coverParent.gameObject.SetActive(false);
         videoPlayer.Play();
-        afterOnPlay?.Invoke();
-
+        onPlay?.Invoke();
+        afterPreload?.Invoke();
     }
 
 
@@ -141,11 +156,36 @@ public class UIVideoPlayer : MonoBehaviour
     {
         if (videoPlayer == null) return;
         if (isPlaying) return;
+        StopAllCoroutines();
 
         isPlaying = true;
-        videoPlayer.Prepare();
-        this.afterOnPlay = afterPlay;
+
+        ///若url不为空，直接准备播放
+        if (!string.IsNullOrEmpty(videoPlayer.url))
+        {
+            videoPlayer.controlledAudioTrackCount = 1;
+            videoPlayer.Prepare();
+            this.onPlay = afterPlay;
+            return;
+        }
+
+        ///若url为空，等待url赋值后再播放
+        StartCoroutine(WaitUrl());
+        IEnumerator WaitUrl()
+        {
+            while (true)
+            {
+                yield return 0;
+                if (!string.IsNullOrEmpty(videoPlayer.url))
+                {
+                    break;
+                }
+            }
+            videoPlayer.Prepare();
+            this.onPlay = afterPlay;
+        }
     }
+
 
     public void Stop()
     {
@@ -154,10 +194,20 @@ public class UIVideoPlayer : MonoBehaviour
 
         isPlaying = false;
         videoPlayer.Stop();
+        rawImage.texture = null;
 
-        coverImg.color = new Color(1, 1, 1, 0);
-        coverImg.gameObject.SetActive(true);
-        coverImg.DOFade(1, 1f).OnComplete(() => { });
+        if (isFadeAnimation)
+        {
+            coverParent.alpha = 0;
+            coverParent.gameObject.SetActive(true);
+            coverParent.DOFade(1, 1f).OnComplete(() => { });
+        }
+        else
+        {
+            coverParent.alpha = 1;
+            coverParent.gameObject.SetActive(true);
+        }
+
     }
 
     public bool isPrepared()
@@ -207,6 +257,41 @@ public class UIVideoPlayer : MonoBehaviour
         videoPlayer.frame = (long)(t * videoPlayer.frameCount);
     }
 
+    /// <summary>
+    /// 获取总时长
+    /// </summary>
+    /// <returns></returns>
+    public double GetTime()
+    {
+        if (videoPlayer.isPrepared)
+        {
+            return videoPlayer.length;
+
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    public void ReleaseTemporary()
+    {
+        RenderTexture.ReleaseTemporary(renderTexture);
+        videoPlayer.targetTexture = null;
+    }
+
+
+    public Vector2 GetSize()
+    {
+        if (videoPlayer.isPrepared)
+        {
+            return new Vector2(videoPlayer.width, videoPlayer.height);
+        }
+        else
+        {
+            return Vector2.zero;
+        }
+    }
 
     void UpdateSlider()
     {

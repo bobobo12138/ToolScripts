@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public interface IGFollow
+{
+    public RectTransform GetFollow();
+}
+
 /// <summary>
-/// ¼òÒ×¸úËæ½Å±¾
-/// ÔİÊ±Ö»Ö§³ÖUI
+/// ç®€æ˜“è·Ÿéšè„šæœ¬
+/// æš‚æ—¶åªæ”¯æŒUI
 /// </summary>
 public class GFollow : MonoBehaviour
 {
@@ -21,6 +27,11 @@ public class GFollow : MonoBehaviour
     public void ReSetFollowTrans(RectTransform _followTrans)
     {
         followTrans = _followTrans;
+    }
+
+    public void ReSetFollowTrans(IGFollow gFollow)
+    {
+        followTrans = gFollow.GetFollow();
     }
 
     private void LateUpdate()

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +11,7 @@ public interface IObjInit
 }
 
 /// <summary>
-/// 通用泛型状态机,T必须是MonoBehaviour子集
+/// 通用对象池,T必须是MonoBehaviour子集
 /// </summary>
 public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
 {
