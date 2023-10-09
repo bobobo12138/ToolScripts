@@ -6,7 +6,7 @@ using UnityEngine;
 /// 子面板基类
 /// 或许需要修改，拥有重写的虚方法，同时采用委托
 /// </summary>
-public abstract class ChildPanelBase : GBaseMono
+public abstract class ChildPanel_UIFollow : GBaseMono
 {
     //public bool isHaveRadioButton = false;
 
