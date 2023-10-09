@@ -4,51 +4,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 用于改变状态的接口，由使用状态机的gameobject继承
-/// 切换状态时的回调
-/// </summary>
-public interface IGeneralFSM
-{
-    void UpdateState_CallBack();
-
-}
-/// <summary>
 /// 枚举键的状态机_泛型
 /// </summary>
-public class GeneralFSM<T_User, T_Enum> where T_Enum : Enum
+public class GeneralFSM
 {
     [System.Serializable]
     public class NowEnemyState
     {
-        public T_Enum State;
-        public State_FSM<T_User> Act;
+        public Enum State;
+        public State_FSM Act;
     }
-
-    private Dictionary<T_Enum, State_FSM<T_User>> FSMDictionary = new Dictionary<T_Enum, State_FSM<T_User>>();
-    private IGeneralFSM pointIGeneralFSM;//使用状态机的GameObject可继承此接口
+    public Action<Enum> onChange;
+    public GameObject user;
     public NowEnemyState nowState = new NowEnemyState();
+    private Dictionary<Enum, State_FSM> FSMDictionary = new Dictionary<Enum, State_FSM>();
 
-    /// <summary>
-    /// 提供使用者的Gameobject
-    /// </summary>
-    /// <param name="v"></param>
-    public GeneralFSM(UnityEngine.Object v)
+    public GeneralFSM(GameObject user)
     {
-        if (v is IGeneralFSM)
-            pointIGeneralFSM = (IGeneralFSM)v;
+        this.user = user;
     }
 
     #region 注入移除
-    public void AddState(T_Enum state, State_FSM<T_User> sabstrat)
+    public void AddState(Enum state, State_FSM stateClass)
     {
         if (FSMDictionary.ContainsKey(state))
         {
             Debug.Log(state + "该状态已经存在");
         }
-        FSMDictionary.Add(state, sabstrat);
+        FSMDictionary.Add(state, stateClass);
     }
 
-    public void RemoveState(T_Enum state, State_FSM<T_User> sabstrat)
+    public void RemoveState(Enum state, State_FSM stateClass)
     {
         if (FSMDictionary.ContainsKey(state))
         {
@@ -65,7 +51,7 @@ public class GeneralFSM<T_User, T_Enum> where T_Enum : Enum
     /// <typeparam name="T"></typeparam>
     /// <param name="state"></param>
     /// <param name="action"></param>
-    public void ChangeState(T_Enum state)
+    public void ChangeState(Enum state)
     {
         if (!FSMDictionary.ContainsKey(state))
         {
@@ -85,8 +71,8 @@ public class GeneralFSM<T_User, T_Enum> where T_Enum : Enum
         ///替换状态数据
         nowState.State = state;
         nowState.Act = FSMDictionary[state];
-        ///执行切换回调，若有的话
-        if (pointIGeneralFSM != null) pointIGeneralFSM.UpdateState_CallBack();
+        //状态已经切换，触发事件
+        onChange(state);
         ///执行下一个状态的OnStart
         FSMDictionary[nowState.State].OnStart();
 
@@ -102,6 +88,3 @@ public class GeneralFSM<T_User, T_Enum> where T_Enum : Enum
 
     }
 }
-
-
-
