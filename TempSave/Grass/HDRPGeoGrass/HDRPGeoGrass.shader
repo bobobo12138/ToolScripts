@@ -18,6 +18,9 @@ Shader "Unlit/HDRPGeoGrass"
         _WindDistortionMap("Wind Distortion Map", 2D) = "white" {}
         _WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
         _WindStrength("Wind Strength", Float) = 1
+
+        [Space(20)]
+        _TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1
     }
     SubShader
     {
@@ -31,18 +34,21 @@ Shader "Unlit/HDRPGeoGrass"
             #pragma vertex vert
             #pragma geometry geo
             #pragma fragment frag
+            #pragma hull hull
+            #pragma domain domain
+
             // make fog work
             #pragma multi_compile_fog
 
+            #include "Shaders/CustomTessellation.cginc"
             #include "UnityCG.cginc"
-
-            struct appdata
-            {
-            	float4 vertex : POSITION;
-	            float3 normal : NORMAL;
-	            float4 tangent : TANGENT;
-                float2 uv : TEXCOORD0;
-            };
+            //struct vertexInput
+            //{
+            //	float4 vertex : POSITION;
+	           // float3 normal : NORMAL;
+	           // float4 tangent : TANGENT;
+            //    float2 uv : TEXCOORD0;
+            //};
 
             // Add inside the CGINCLUDE block.
             struct geometryOutput
@@ -51,14 +57,14 @@ Shader "Unlit/HDRPGeoGrass"
 	            float4 pos : SV_POSITION;
             };
 
-            struct vertOutput
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-	            float3 normal : NORMAL;
-	            float4 tangent : TANGENT;
-            };
+            //struct vertexOutput
+            //{
+            //    float2 uv : TEXCOORD0;
+            //    float4 vertex : SV_POSITION;
+	           // float3 normal : NORMAL;
+	           // float4 tangent : TANGENT;
+            //};
+
 
             sampler2D _MainTex;
             float4 _TopColor;
@@ -81,17 +87,16 @@ Shader "Unlit/HDRPGeoGrass"
             float _WindStrength;
 
 
-            vertOutput vert (appdata v)
-            {
-                vertOutput o;
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.vertex = v.vertex;
-                o.normal = v.normal;
-                o.tangent = v.tangent;
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
-
+            //vertexOutput vert (vertexInput v)
+            //{
+            //    vertexOutput o;
+            //    o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+            //    o.vertex = v.vertex;
+            //    o.normal = v.normal;
+            //    o.tangent = v.tangent;
+            //    UNITY_TRANSFER_FOG(o,o.vertex);
+            //    return o;
+            //}
 
             ///geoµÄ¸¨Öúº¯Êý
             geometryOutput VertexOutput(float3 pos, float2 uv)
@@ -123,7 +128,7 @@ Shader "Unlit/HDRPGeoGrass"
 				);
 			}
             [maxvertexcount(120)]
-            void geo(triangle vertOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
+            void geo(triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
                 //float3 pos = (IN[0]+IN[1]+IN[2])/3;
                 float3 pos = IN[2].vertex;
