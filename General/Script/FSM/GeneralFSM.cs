@@ -12,12 +12,12 @@ public class GeneralFSM
     public class NowEnemyState
     {
         public Enum State;
-        public State_FSM<IGFSM> Act;
+        public State_FSM Act;
     }
     public Action<Enum> onChange;
     public GameObject user;
     public NowEnemyState nowState = new NowEnemyState();
-    private Dictionary<Enum, State_FSM<IGFSM>> FSMDictionary = new Dictionary<Enum, State_FSM<IGFSM>>();
+    private Dictionary<Enum, State_FSM> FSMDictionary = new Dictionary<Enum, State_FSM>();
 
     public GeneralFSM(GameObject user)
     {
@@ -25,7 +25,7 @@ public class GeneralFSM
     }
 
     #region 注入移除
-    public void AddState(Enum state, State_FSM<IGFSM> stateClass)
+    public void AddState(Enum state, State_FSM stateClass)
     {
         if (FSMDictionary.ContainsKey(state))
         {
@@ -34,7 +34,7 @@ public class GeneralFSM
         FSMDictionary.Add(state, stateClass);
     }
 
-    public void RemoveState(Enum state, State_FSM<IGFSM> stateClass)
+    public void RemoveState(Enum state, State_FSM stateClass)
     {
         if (FSMDictionary.ContainsKey(state))
         {
