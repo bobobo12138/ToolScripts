@@ -8,13 +8,13 @@ using UnityEngine;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [Serializable]
-public abstract class State_FSM
+public abstract class State_FSM<T> where T: IGFSM
 {
-    GeneralFSM generalFSM = null;
+    protected T user;
 
-    protected State_FSM(GeneralFSM generalFSM)
+    protected State_FSM(T user)
     {
-        this.generalFSM = generalFSM;
+        this.user = user;
     }
 
     public abstract void WhyChange();
