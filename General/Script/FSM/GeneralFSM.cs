@@ -14,7 +14,6 @@ public class GeneralFSM
         public Enum State;
         public State_FSM Act;
     }
-    public Action<Enum> onChange;
     public GameObject user;
     public NowEnemyState nowState = new NowEnemyState();
     private Dictionary<Enum, State_FSM> FSMDictionary = new Dictionary<Enum, State_FSM>();
@@ -71,8 +70,6 @@ public class GeneralFSM
         ///替换状态数据
         nowState.State = state;
         nowState.Act = FSMDictionary[state];
-        //状态已经切换，触发事件
-        onChange(state);
         ///执行下一个状态的OnStart
         FSMDictionary[nowState.State].OnStart();
 
