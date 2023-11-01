@@ -6,17 +6,17 @@ using UnityEngine;
 /// 通用泛型状态机_带出栈清单
 /// 待实测，建议是继承重写原始状态机
 /// </summary>
-public class GObjPool_WithOutlist<T> where T : MonoBehaviour
+public class GObjPool_WithPopList<T> where T : MonoBehaviour
 {
     Stack<T> pool = new Stack<T>();
-    List<T> outlist = new List<T>();//出pool清单
+    List<T> poplist = new List<T>();//出pool清单，容纳已经从对象池中出去的对象
     Transform parent;
     T prototype;
 
     /// <summary>
     /// 父级，生成物，预生成数量
     /// </summary>
-    public GObjPool_WithOutlist(Transform _parent, T _spawnObj, int num = 0)
+    public GObjPool_WithPopList(Transform _parent, T _spawnObj, int num = 0)
     {
         parent = _parent;
         prototype = GameObject.Instantiate(_spawnObj, parent);//预先克隆一个作为原型，方便外部访问修改
@@ -48,14 +48,14 @@ public class GObjPool_WithOutlist<T> where T : MonoBehaviour
 
             v.gameObject.SetActive(true);
             Expand_Get(v);
-            outlist.Add(v);
+            poplist.Add(v);
             return v;
         }
 
         var obj = pool.Pop();
         obj.gameObject.SetActive(true);
         Expand_Get(obj);
-        outlist.Add(obj);
+        poplist.Add(obj);
         return obj;
     }
 
@@ -71,7 +71,7 @@ public class GObjPool_WithOutlist<T> where T : MonoBehaviour
             obj.transform.SetParent(parent);
         obj.gameObject.SetActive(false);
         Expand_RecycleObj(obj);
-        outlist.Remove(obj);
+        poplist.Remove(obj);
         pool.Push(obj);
     }
 
@@ -96,7 +96,7 @@ public class GObjPool_WithOutlist<T> where T : MonoBehaviour
         if (parent.childCount <= 1) return;
 
         pool.Clear();
-        outlist.Clear();
+        poplist.Clear();
         for (int i = 1; i < parent.childCount; i++)//谨防误删原型
         {
             GameObject.Destroy(parent.GetChild(i).gameObject);
@@ -124,7 +124,19 @@ public class GObjPool_WithOutlist<T> where T : MonoBehaviour
 
     public List<T> GetOutlist()
     {
-        return outlist;
+        return poplist;
+    }
+
+    /// <summary>
+    /// 回收outlist中所有对象
+    /// </summary>
+    public void RecycleOutlist()
+    {
+        for (int i = poplist.Count - 1; i >= 0; i--)
+        {
+            RecycleObj(poplist[i]);
+        }
+        poplist.Clear();
     }
 
     /// <summary>
