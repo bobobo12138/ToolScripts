@@ -2,19 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using YSecurityData;
 
 /// <summary>
 /// 简易状态机
 /// 需要增加退出状态机的事件
 /// </summary>
-public class LiteFSM<T>
+public sealed class LiteFSM<T>
 {
     public T nowState;
     Dictionary<T, Action> stateDic;
     bool isInit=false;
 
-    public virtual void Init()
+    public LiteFSM()
     {
         isInit = true;
         stateDic = new Dictionary<T, Action>();
