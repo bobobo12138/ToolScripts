@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using YSecurityData;
 
 /// <summary>
 /// 简易状态机
@@ -11,49 +10,64 @@ using YSecurityData;
 public class LiteFSM<T>
 {
     public T nowState;
-    Dictionary<T, Action> stateDic;
-    bool isInit=false;
+    Dictionary<T, Action> stateDic_Change;
+    Dictionary<T, Action> stateDic_Update;
+    bool isInit = false;
 
     public virtual void Init()
     {
         isInit = true;
-        stateDic = new Dictionary<T, Action>();
+        stateDic_Change = new Dictionary<T, Action>();
     }
 
-    public void AddState(T stateName, Action state)
+    public void AddState(T stateName, Action state_Change, Action state_Update)
     {
         if (!isInit) Debug.LogError("LiteFSM未初始化");
 
-        if (stateDic.ContainsKey(stateName))
+        if (stateDic_Change.ContainsKey(stateName))
         {
             Debug.LogError("stateName is already exist");
             return;
         }
-        stateDic.Add(stateName, state);
+        else
+        {
+            stateDic_Change.Add(stateName, state_Change);
+            stateDic_Update.Add(stateName, state_Update);
+        }
     }
 
     public void RemoveState(T stateName)
     {
         if (!isInit) Debug.LogError("LiteFSM未初始化");
 
-        if (!stateDic.ContainsKey(stateName))
+        if (!stateDic_Change.ContainsKey(stateName))
         {
             Debug.LogError("stateName is not exist");
             return;
         }
-        stateDic.Remove(stateName);
+        else
+        {
+            stateDic_Change.Remove(stateName);
+            stateDic_Update.Remove(stateName);
+
+        }
     }
 
     public void ChangeState(T stateName)
     {
         if (!isInit) Debug.LogError("LiteFSM未初始化");
 
-        if (!stateDic.ContainsKey(stateName))
+        if (!stateDic_Change.ContainsKey(stateName))
         {
             Debug.LogError("stateName is not exist");
             return;
         }
-        stateDic[stateName].Invoke();
+        stateDic_Change[stateName]?.Invoke();
         nowState = stateName;
+    }
+
+    public void Update()
+    {
+        stateDic_Update[nowState]?.Invoke();
     }
 }
