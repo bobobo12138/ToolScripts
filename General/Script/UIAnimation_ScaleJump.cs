@@ -1,5 +1,4 @@
 using DG.Tweening;
-using Game.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -52,11 +51,11 @@ public class UIAnimation_ScaleJump : MonoBehaviour
     /// <summary>
     /// 放在start中初始化
     /// </summary>
-    public void StartInit()
+    public void StartInit(Camera camera)
     {
         rectTransform = GetComponent<RectTransform>();
         //初始化缩放
-        camera = UIManager.Instance.uiCamera.currentCamera;
+        this.camera = camera;
         rectSize = new Vector2(circleMask.rect.width, circleMask.rect.height);
         //初始化贝塞尔节点
         foreach (var v in pointTrans)
