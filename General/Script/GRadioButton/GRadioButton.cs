@@ -1,38 +1,38 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 /// <summary>
-/// ÔİÊ±µÄµ¥Ñ¡Ïî,µ¥Ñ¡¿ò±ØĞëºÍ×°ÔØÍ¬Ê±³öÏÖ,Ã»ÓĞ×°ÔØÊ±Ö»ÊÇ¸öÆÕÍ¨°´Å¥
-/// ×¢Òâ°´Å¥µÄ×Ó¼¯ÓĞµ²×¡ËüµÄÍ¼Æ¬£¨½«×Ó¼¯Í¼Æ¬ÉäÏß¼ì²â¹Øµô¼´¿É£©
-/// ÏñÊ¹ÓÃ°´Å¥Ò»ÑùÊ¹ÓÃ
+/// æš‚æ—¶çš„å•é€‰é¡¹,å•é€‰æ¡†å¿…é¡»å’Œè£…è½½åŒæ—¶å‡ºç°,æ²¡æœ‰è£…è½½æ—¶åªæ˜¯ä¸ªæ™®é€šæŒ‰é’®
+/// æ³¨æ„æŒ‰é’®çš„å­é›†æœ‰æŒ¡ä½å®ƒçš„å›¾ç‰‡ï¼ˆå°†å­é›†å›¾ç‰‡å°„çº¿æ£€æµ‹å…³æ‰å³å¯ï¼‰
+/// åƒä½¿ç”¨æŒ‰é’®ä¸€æ ·ä½¿ç”¨
 /// </summary>
 public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerClickHandler, IPointerUpHandler
 {
-    //+=Í¼Ê¡ÊÂ£¬ºóĞøĞèÒª¸ÄÎªaddlinsenter
-    public Action onSelected;//ÇĞ»»ÊÂ¼ş,Ê¹ÓÃ+=
-    public Action onExit;//ÍË³öÊÂ¼ş,Ê¹ÓÃ+=
-    public GRadioButtonLoader gRadioButtonLoader;//Ö¸ÏòµÄ×é£¬¿ÉÍÏ¶¯¿É´úÂë¸³Öµ
+    //+=å›¾çœäº‹ï¼Œåç»­éœ€è¦æ”¹ä¸ºaddlinsenter
+    public Action onSelected;//åˆ‡æ¢äº‹ä»¶,ä½¿ç”¨+=
+    public Action onExit;//é€€å‡ºäº‹ä»¶,ä½¿ç”¨+=
+    public GRadioButtonLoader gRadioButtonLoader;//æŒ‡å‘çš„ç»„ï¼Œå¯æ‹–åŠ¨å¯ä»£ç èµ‹å€¼
 
-    //µ¥»÷ÓëÈ¡ÏûÊ±µÄÏÔÊ¾
-    [Header("½¹µãÊ±µÄÍ¼Æ¬/·Ç½¹µãÊ±µÄÍ¼Æ¬")]
-    [Header("Îª¿ÕÔò´ú±í²»»á±ä»¯")]
+    //å•å‡»ä¸å–æ¶ˆæ—¶çš„æ˜¾ç¤º
+    [Header("ç„¦ç‚¹æ—¶çš„å›¾ç‰‡/éç„¦ç‚¹æ—¶çš„å›¾ç‰‡")]
+    [Header("ä¸ºç©ºåˆ™ä»£è¡¨ä¸ä¼šå˜åŒ–")]
     [SerializeField]
     protected GameObject clickTrans;
     [SerializeField]
     protected GameObject disTrans;
 
-    [Header("ÒÆ¶¯µ½´Ë´¦Ê±µÄÕÚÕÖ")]
+    [Header("ç§»åŠ¨åˆ°æ­¤å¤„æ—¶çš„é®ç½©")]
     [SerializeField]
     GameObject grayMask;
 
     public bool interactable = true;
-    public bool isAni = false;//ÊÇ·ñĞ¡¶¯»­
+    public bool isAni = false;//æ˜¯å¦å°åŠ¨ç”»
     public bool isSelected;
     [SerializeField]
-    bool isAwakeInit = false;//ÊÇ·ñawake³õÊ¼»¯£¬½¨ÒéÊÖ¶¯µ÷ÓÃinit³õÊ¼»¯
+    bool isAwakeInit = false;//æ˜¯å¦awakeåˆå§‹åŒ–ï¼Œå»ºè®®æ‰‹åŠ¨è°ƒç”¨initåˆå§‹åŒ–
     Transform aniTrans;
 
     protected void Awake()
@@ -41,15 +41,15 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     }
 
     /// <summary>
-    /// ĞèÒªÊÖ¶¯´úÓÃ³õÊ¼»¯
+    /// éœ€è¦æ‰‹åŠ¨ä»£ç”¨åˆå§‹åŒ–
     /// </summary>
     public virtual void Init()
     {
         aniTrans = GetComponent<Transform>();
 
-        /// ±¾ÏîÄ¿ÖĞµ¥Ñ¡¿òÒÑ¾­ÌØ»¯
-        /// ²»ÔÙÊÇ+=£¬×¢Òâ³õÊ¼»¯ÎÊÌâ
-        /// Ö÷ÒªÔ­ÒòÊÇÍ¼Æ¬ÀúÊ·¼ÇÂ¼£¬½¨Òé½«Í¼Æ¬ÀúÊ·¼ÇÂ¼µÄradioButton¶ÀÁ¢³öÀ´£¬·ÀÖ¹Î»ÖÃbug
+        /// æœ¬é¡¹ç›®ä¸­å•é€‰æ¡†å·²ç»ç‰¹åŒ–
+        /// ä¸å†æ˜¯+=ï¼Œæ³¨æ„åˆå§‹åŒ–é—®é¢˜
+        /// ä¸»è¦åŸå› æ˜¯å›¾ç‰‡å†å²è®°å½•ï¼Œå»ºè®®å°†å›¾ç‰‡å†å²è®°å½•çš„radioButtonç‹¬ç«‹å‡ºæ¥ï¼Œé˜²æ­¢ä½ç½®bug
         onSelected += () =>
         {
             SetSelected();
@@ -59,7 +59,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             SetExit();
         };
 
-        ///³õÊ¼ÏÔÊ¾ÍË³ö
+        ///åˆå§‹æ˜¾ç¤ºé€€å‡º
         if (disTrans != null)
             disTrans.SetActive(true);
         if (clickTrans != null)
@@ -79,7 +79,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     }
 
     /// <summary>
-    /// ¿ÉÖ÷¶¯µ÷ÓÃµÄµ¥»÷ÊÂ¼ş
+    /// å¯ä¸»åŠ¨è°ƒç”¨çš„å•å‡»äº‹ä»¶
     /// </summary>
     public void Click()
     {
@@ -89,11 +89,11 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
         else
         {
-            if (gRadioButtonLoader.last != this)///Öµ¸Ä±äÊ±
+            if (gRadioButtonLoader.last != this)///å€¼æ”¹å˜æ—¶
             {
                 if (gRadioButtonLoader.last != null)
                 {
-                    gRadioButtonLoader.last.onExit();//Ö´ĞĞ×éÄÚÉÏÒ»¸öµÄexit
+                    gRadioButtonLoader.last.onExit();//æ‰§è¡Œç»„å†…ä¸Šä¸€ä¸ªçš„exit
                 }
                 gRadioButtonLoader.last = this;
                 onSelected();
@@ -101,8 +101,8 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
     /// <summary>
-    /// ²»µ÷ÓÃonSelectedÊÂ¼şµÄClick
-    /// ÌØÊâ·½·¨£¬²»Ó¦¸Ã·ÅÔÚÕâÀï±ß£¬ºóĞø²ÉÓÃ¼Ì³Ğ
+    /// ä¸è°ƒç”¨onSelectedäº‹ä»¶çš„Click
+    /// ç‰¹æ®Šæ–¹æ³•ï¼Œä¸åº”è¯¥æ”¾åœ¨è¿™é‡Œè¾¹ï¼Œåç»­é‡‡ç”¨ç»§æ‰¿
     /// </summary>
     public void Click_NoOnSelectedAction()
     {
@@ -112,11 +112,11 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
         else
         {
-            if (gRadioButtonLoader.last != this)///Öµ¸Ä±äÊ±
+            if (gRadioButtonLoader.last != this)///å€¼æ”¹å˜æ—¶
             {
                 if (gRadioButtonLoader.last != null)
                 {
-                    gRadioButtonLoader.last.onExit();//Ö´ĞĞ×éÄÚÉÏÒ»¸öµÄexit
+                    gRadioButtonLoader.last.onExit();//æ‰§è¡Œç»„å†…ä¸Šä¸€ä¸ªçš„exit
                 }
                 gRadioButtonLoader.last = this;
                 SetSelected();
@@ -124,7 +124,26 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    protected  void SetSelected()
+    /// <summary>
+    /// </summary>
+    public void Click_Force()
+    {
+        if (gRadioButtonLoader == null)
+        {
+            onSelected();
+        }
+        else
+        {
+            if (gRadioButtonLoader.last != null)
+            {
+                gRadioButtonLoader.last.onExit();//æ‰§è¡Œç»„å†…ä¸Šä¸€ä¸ªçš„exit
+            }
+            gRadioButtonLoader.last = this;
+            onSelected();
+        }
+    }
+
+    protected void SetSelected()
     {
         if (disTrans != null)
             disTrans.SetActive(false);
@@ -142,7 +161,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         isSelected = false;
     }
     /// <summary>
-    /// Ë¢ĞÂ
+    /// åˆ·æ–°
     /// </summary>
     public void ReFresh()
     {
@@ -164,7 +183,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         isSelected = false;
     }
 
-    #region ÊÂ¼ş½Ó¿Ú
+    #region äº‹ä»¶æ¥å£
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!interactable) return;
@@ -205,7 +224,7 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     }
 
     /// <summary>
-    /// ÔİÊ±µÄĞ­³Ì¶¯»­
+    /// æš‚æ—¶çš„åç¨‹åŠ¨ç”»
     /// </summary>
     IEnumerator Ani_Down()
     {

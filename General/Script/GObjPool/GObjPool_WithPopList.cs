@@ -1,50 +1,59 @@
-using System.Collections;
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Í¨ÓÃ·ºĞÍ×´Ì¬»ú_´ø³öÕ»Çåµ¥
-/// ´ıÊµ²â£¬½¨ÒéÊÇ¼Ì³ĞÖØĞ´Ô­Ê¼×´Ì¬»ú
+/// é€šç”¨æ³›å‹çŠ¶æ€æœº_å¸¦å‡ºæ ˆæ¸…å•
+/// å¾…å®æµ‹ï¼Œå»ºè®®æ˜¯ç»§æ‰¿é‡å†™åŸå§‹çŠ¶æ€æœº
 /// </summary>
-public class GObjPool_WithPopList<T> where T : MonoBehaviour
+public class GObjPool_WithPopList<T> where T : Component
 {
     Stack<T> pool = new Stack<T>();
-    List<T> poplist = new List<T>();//³öpoolÇåµ¥£¬ÈİÄÉÒÑ¾­´Ó¶ÔÏó³ØÖĞ³öÈ¥µÄ¶ÔÏó
+    List<T> poplist = new List<T>();//å‡ºpoolæ¸…å•ï¼Œå®¹çº³å·²ç»ä»å¯¹è±¡æ± ä¸­å‡ºå»çš„å¯¹è±¡
     Transform parent;
     T prototype;
 
     /// <summary>
-    /// ¸¸¼¶£¬Éú³ÉÎï£¬Ô¤Éú³ÉÊıÁ¿
+    /// å°è£…çš„å®ä¾‹åŒ–ä¸åˆå§‹åŒ–
+    /// </summary>
+    /// <returns></returns>
+    protected T InstantiateObj()
+    {
+        var v = GameObject.Instantiate(prototype, parent);
+        //è¿›è¡Œåˆå§‹åŒ–ï¼Œè‹¥ç»§æ‰¿äº†IObjInitæ¥å£çš„è¯
+        if (v is IObjInit)
+        {
+            var temp = v as IObjInit;
+            temp.Init();
+        }
+        return v;
+    }
+
+    /// <summary>
+    /// çˆ¶çº§ï¼Œç”Ÿæˆç‰©ï¼Œé¢„ç”Ÿæˆæ•°é‡
     /// </summary>
     public GObjPool_WithPopList(Transform _parent, T _spawnObj, int num = 0)
     {
         parent = _parent;
-        prototype = GameObject.Instantiate(_spawnObj, parent);//Ô¤ÏÈ¿ËÂ¡Ò»¸ö×÷ÎªÔ­ĞÍ£¬·½±ãÍâ²¿·ÃÎÊĞŞ¸Ä
+        prototype = GameObject.Instantiate(_spawnObj, parent);//é¢„å…ˆå…‹éš†ä¸€ä¸ªä½œä¸ºåŸå‹ï¼Œæ–¹ä¾¿å¤–éƒ¨è®¿é—®ä¿®æ”¹
+
         prototype.name = prototype.name + "prototype";
         for (int i = 0; i < num; i++)
         {
-            var v = GameObject.Instantiate(prototype, parent);
+            var v = InstantiateObj();
             pool.Push(v);
             v.gameObject.SetActive(false);
         }
-        prototype.gameObject.SetActive(false);//×îºó²Å½«Ô­ĞÍSetActive(false)·ñÔò»á³öÏÖawakeÔËĞĞÎÊÌâ
+        prototype.gameObject.SetActive(false);//æœ€åæ‰å°†åŸå‹SetActive(false)å¦åˆ™ä¼šå‡ºç°awakeè¿è¡Œé—®é¢˜
     }
     /// <summary>
-    /// »ñÈ¡Ò»¸ö¶ÔÏó
+    /// è·å–ä¸€ä¸ªå¯¹è±¡
     /// </summary>
     /// <returns></returns>
     public T GetObj()
     {
         if (pool.Count == 0)
         {
-            var v = GameObject.Instantiate(prototype, parent);
-
-            //½øĞĞ³õÊ¼»¯£¬Èô¼Ì³ĞÁËIObjInit½Ó¿ÚµÄ»°
-            if (v is IObjInit)
-            {
-                var temp = v as IObjInit;
-                temp.Init();
-            }
+            var v = InstantiateObj();
 
             v.gameObject.SetActive(true);
             Expand_Get(v);
@@ -60,12 +69,12 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
     }
 
     /// <summary>
-    /// »ØÊÕÒ»¸ö¶ÔÏó
+    /// å›æ”¶ä¸€ä¸ªå¯¹è±¡
     /// </summary>
     /// <param name="obj"></param>
     public void RecycleObj(T obj)
     {
-        if (obj == prototype) return;//²»ÄÜ»ØÊÕÔ­ĞÍ
+        if (obj == prototype) return;//ä¸èƒ½å›æ”¶åŸå‹
         if (pool.Contains(obj)) return;
         if (obj.transform.parent != parent)
             obj.transform.SetParent(parent);
@@ -76,20 +85,20 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
     }
 
     /// <summary>
-    /// ÅúÁ¿Éú²ú
+    /// æ‰¹é‡ç”Ÿäº§
     /// </summary>
     /// <param name="num"></param>
     public void Produce(int num = 10)
     {
         for (int i = 0; i < num; i++)
         {
-            var v = GameObject.Instantiate(prototype, parent);
+            var v = InstantiateObj();
             v.gameObject.SetActive(false);
             pool.Push(v);
         }
     }
     /// <summary>
-    /// Çå³ı¶ÔÏó³Ø
+    /// æ¸…é™¤å¯¹è±¡æ± 
     /// </summary>
     public void CleanPool()
     {
@@ -97,14 +106,14 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
 
         pool.Clear();
         poplist.Clear();
-        for (int i = 1; i < parent.childCount; i++)//½÷·ÀÎóÉ¾Ô­ĞÍ
+        for (int i = 1; i < parent.childCount; i++)//è°¨é˜²è¯¯åˆ åŸå‹
         {
             GameObject.Destroy(parent.GetChild(i).gameObject);
         }
     }
 
     /// <summary>
-    /// »ñµÃ¿ËÂ¡µÄÔ­ĞÍ£¬½÷É÷¶ÔÔ­ĞÍ½øĞĞĞŞ¸Ä
+    /// è·å¾—å…‹éš†çš„åŸå‹ï¼Œè°¨æ…å¯¹åŸå‹è¿›è¡Œä¿®æ”¹
     /// </summary>
     /// <returns></returns>
     public T GetPrototype()
@@ -115,8 +124,8 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
         }
         else
         {
-            //Debug.LogWarning("cant get the prototype,is objpool init?(constructor)");
-            Debug.LogWarning("ÎŞ·¨»ñµÃÔ­ĞÍ£¬¶ÔÏó³Ø³õÊ¼»¯·ñ£¿");
+            //AprilDebug.LogWarning("cant get the prototype,is objpool init?(constructor)");
+            AprilDebug.LogWarning("æ— æ³•è·å¾—åŸå‹ï¼Œå¯¹è±¡æ± åˆå§‹åŒ–å¦ï¼Ÿ");
             return null;
         }
 
@@ -128,7 +137,7 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
     }
 
     /// <summary>
-    /// »ØÊÕoutlistÖĞËùÓĞ¶ÔÏó
+    /// å›æ”¶outlistä¸­æ‰€æœ‰å¯¹è±¡
     /// </summary>
     public void RecycleOutlist()
     {
@@ -140,7 +149,7 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
     }
 
     /// <summary>
-    /// GetObje·½·¨ÍØÕ¹£¬ÈôÎŞ·¨Âú×ãĞèÇó£¬¼Ì³Ğ±¾Àà£¬ÖØĞ´ºó»áÔÚGetÊ±×Ô¶¯µ÷ÓÃ
+    /// GetObjeæ–¹æ³•æ‹“å±•ï¼Œè‹¥æ— æ³•æ»¡è¶³éœ€æ±‚ï¼Œç»§æ‰¿æœ¬ç±»ï¼Œé‡å†™åä¼šåœ¨Getæ—¶è‡ªåŠ¨è°ƒç”¨
     /// </summary>
     /// <param name="v"></param>
     protected virtual void Expand_Get(T v)
@@ -150,7 +159,7 @@ public class GObjPool_WithPopList<T> where T : MonoBehaviour
 
 
     /// <summary>
-    /// RecycleObj·½·¨ÍØÕ¹£¬ÈôÎŞ·¨Âú×ãĞèÇó£¬¼Ì³Ğ±¾Àà£¬ÖØĞ´ºó»áÔÚRecycleObjÊ±×Ô¶¯µ÷ÓÃ
+    /// RecycleObjæ–¹æ³•æ‹“å±•ï¼Œè‹¥æ— æ³•æ»¡è¶³éœ€æ±‚ï¼Œç»§æ‰¿æœ¬ç±»ï¼Œé‡å†™åä¼šåœ¨RecycleObjæ—¶è‡ªåŠ¨è°ƒç”¨
     /// </summary>
     /// <param name="v"></param>
     protected virtual void Expand_RecycleObj(T v)

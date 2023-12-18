@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,8 +13,28 @@ public interface IObjInit
 /// <summary>
 /// 通用对象池,T必须是MonoBehaviour子集
 /// </summary>
-public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
+public class GObjPool<T> where T : Component
 {
+    protected Stack<T> pool = new Stack<T>();
+    protected Transform parent;
+    protected T prototype;//注意原型不进行初始化
+
+    /// <summary>
+    /// 封装的实例化与初始化
+    /// </summary>
+    /// <returns></returns>
+    protected T InstantiateObj()
+    {
+        var v = GameObject.Instantiate(prototype, parent);
+        //进行初始化，若继承了IObjInit接口的话
+        if (v is IObjInit)
+        {
+            var temp = v as IObjInit;
+            temp.Init();
+        }
+        return v;
+    }
+
     /// <summary>
     /// 父级，生成物，预生成数量
     /// </summary>
@@ -22,11 +42,11 @@ public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
     {
         parent = _parent;
         prototype = GameObject.Instantiate(_spawnObj, parent);//预先克隆一个作为原型，方便外部访问修改
+
         prototype.name = prototype.name + "prototype";
         for (int i = 0; i < num; i++)
         {
-            var v = Instantiate();
-
+            var v = InstantiateObj();
             pool.Push(v);
             v.gameObject.SetActive(false);
         }
@@ -40,7 +60,7 @@ public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
     {
         if (pool.Count == 0)
         {
-            var v = Instantiate();
+            var v = InstantiateObj();
 
             v.gameObject.SetActive(true);
             Expand_Get(v);
@@ -76,7 +96,7 @@ public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
     {
         for (int i = 0; i < num; i++)
         {
-            var v = Instantiate();
+            var v = InstantiateObj();
             v.gameObject.SetActive(false);
             pool.Push(v);
         }
@@ -107,8 +127,8 @@ public class GObjPool<T>: GObjPoolBase<T> where T : MonoBehaviour
         }
         else
         {
-            //Debug.LogWarning("cant get the prototype,is objpool init?(constructor)");
-            Debug.LogWarning("无法获得原型，对象池初始化否？");
+            //AprilDebug.LogWarning("cant get the prototype,is objpool init?(constructor)");
+            AprilDebug.LogWarning("无法获得原型，对象池初始化否？");
             return null;
         }
 
