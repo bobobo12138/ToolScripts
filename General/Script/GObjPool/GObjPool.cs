@@ -128,7 +128,7 @@ public class GObjPool<T> where T : Component
         else
         {
             //AprilDebug.LogWarning("cant get the prototype,is objpool init?(constructor)");
-            AprilDebug.LogWarning("无法获得原型，对象池初始化否？");
+            Debug.LogWarning("无法获得原型，对象池初始化否？");
             return null;
         }
 

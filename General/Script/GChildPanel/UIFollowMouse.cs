@@ -1,28 +1,27 @@
 using DG.Tweening;
-using Game.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-//public enum DirEnum
-//{
-//    UP,
-//    DOWN,
-//    LEFT,
-//    RIGHT,
-//    FORWARD,
-//    BACK,
+public enum DirEnum
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    FORWARD,
+    BACK,
 
 
-//    UPDOWN,
-//    LEFTRIGHT,
-//    FORWARDBACK,
+    UPDOWN,
+    LEFTRIGHT,
+    FORWARDBACK,
 
 
-//    EVERY,
-//}
+    EVERY,
+}
 
 public class UIFollowMouse : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {

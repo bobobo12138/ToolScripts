@@ -76,7 +76,7 @@ public class Utils
     {
         if (inputList == null || count <= 0 || count > inputList.Count)
         {
-            AprilDebug.LogError("输入参数无效");
+            Debug.LogError("输入参数无效");
             return null;
         }
 
@@ -358,7 +358,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            AprilDebug.LogError("加载图片失败:" + imgPath + " / " + ex);
+            Debug.LogError("加载图片失败:" + imgPath + " / " + ex);
         }
     }
 
@@ -372,7 +372,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            AprilDebug.LogError("加载Mesh失败" + ex);
+            Debug.LogError("加载Mesh失败" + ex);
         }
     }
 
@@ -386,7 +386,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            AprilDebug.LogError("加载Material失败" + ex);
+            Debug.LogError("加载Material失败" + ex);
         }
     }
 
@@ -742,7 +742,7 @@ public class Utils
     /// <returns></returns>
     public static T ToEnum<T>(string str)
     {
-        AprilDebug.Log(str);
+        Debug.Log(str);
         return (T)System.Enum.Parse(typeof(T), str);
     }
 
