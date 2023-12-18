@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,8 +6,7 @@ using static UnityEngine.RectTransform;
 
 public class GImage_SizeAdaptive : MonoBehaviour
 {
-
-    [Header("»ùÓÚ¸¸¼¶µÄËõ·Å")]
+    [Header("åŸºäºçˆ¶çº§çš„ç¼©æ”¾")]
     public float scale = 0.95f;
 
     Image image;
@@ -23,17 +22,30 @@ public class GImage_SizeAdaptive : MonoBehaviour
         SizeAdaptive();
     }
 
+    public void SetNativeSize()
+    {
+        image.SetNativeSize();
+    }
+
+    public void Refresh()
+    {
+        if (image.sprite != null)
+        {
+            SizeAdaptive();
+        }
+    }
+
     private void Reset()
     {
-        if (GetComponent<Image>() == null) { Debug.LogError("Ìí¼ÓImage×é¼ş£¡"); }
+        if (GetComponent<Image>() == null) { AprilDebug.LogError("æ·»åŠ Imageç»„ä»¶ï¼"); }
     }
 
     void SizeAdaptive()
     {
         image.SetNativeSize();
-        //ÏÈµÈ±ÈÀıÀ©´óÆ½ÆÌ·ÀÖ¹Í¼Æ¬¹ıĞ¡£¨»ñµÃÆ½ÆÌ±¶Êı£©
+        //å…ˆç­‰æ¯”ä¾‹æ‰©å¤§å¹³é“ºé˜²æ­¢å›¾ç‰‡è¿‡å°ï¼ˆè·å¾—å¹³é“ºå€æ•°ï¼‰
         float maxTiled = Utils.MaxTiled(new Vector2(image.rectTransform.rect.width, image.rectTransform.rect.height), new Vector2(parent.rect.width, parent.rect.height));
-        //È»ºó½øĞĞ³ß´çÏŞ¶¨
+        //ç„¶åè¿›è¡Œå°ºå¯¸é™å®š
         var size = Utils.WHSizelimit(new Vector2(image.rectTransform.rect.width * maxTiled, image.rectTransform.rect.height * maxTiled), new Vector2(parent.rect.width, parent.rect.height));
         size *= scale;
         image.rectTransform.SetSizeWithCurrentAnchors(Axis.Horizontal, size.x);

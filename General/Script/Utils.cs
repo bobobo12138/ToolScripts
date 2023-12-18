@@ -76,7 +76,7 @@ public class Utils
     {
         if (inputList == null || count <= 0 || count > inputList.Count)
         {
-            Debug.LogError("输入参数无效");
+            AprilDebug.LogError("输入参数无效");
             return null;
         }
 
@@ -358,7 +358,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载图片失败:" + imgPath + " / " + ex);
+            AprilDebug.LogError("加载图片失败:" + imgPath + " / " + ex);
         }
     }
 
@@ -372,7 +372,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载Mesh失败" + ex);
+            AprilDebug.LogError("加载Mesh失败" + ex);
         }
     }
 
@@ -386,7 +386,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载Material失败" + ex);
+            AprilDebug.LogError("加载Material失败" + ex);
         }
     }
 
@@ -444,7 +444,7 @@ public class Utils
     //    float dot = Vector3.Dot(me.forward, dir.normalized);//点乘判断前后   //dot >0在前  <0在后 
     //    float dot1 = Vector3.Dot(me.right, dir.normalized);//点乘判断左右    //dot1>0在右  <0在左                                               
     //    float angle = Mathf.Acos(Vector3.Dot(me.forward.normalized, dir.normalized)) * Mathf.Rad2Deg;//通过点乘求出夹角
-    //    Debug.Log(angle);
+    //    AprilDebug.Log(angle);
     //    return angle;
     //}
 
@@ -641,16 +641,25 @@ public class Utils
     /// <returns></returns>
     public static Vector2 WHSizelimit(Vector2 user, Vector2 max)
     {
-        float pro = 1;
-        if (user.x > max.x)
+        float prox = 1;
+        float proy = 1;
+
+        if (user.x >= max.x)
         {
-            pro = max.x / user.x;
+            if (user.x > max.x)
+            {
+                prox = max.x / user.x;
+            }
         }
-        else if (user.y > max.y)
+        if (user.y > max.y)
         {
-            pro = max.y / user.y;
+            if (user.y > max.y)
+            {
+                proy = max.y / user.y;
+            }
         }
-        return new Vector2(user.x * pro, user.y * pro);
+
+        return new Vector2(user.x * Mathf.Min(prox, proy), user.y * Mathf.Min(prox, proy));
     }
 
     /// <summary>
@@ -733,7 +742,7 @@ public class Utils
     /// <returns></returns>
     public static T ToEnum<T>(string str)
     {
-        Debug.Log(str);
+        AprilDebug.Log(str);
         return (T)System.Enum.Parse(typeof(T), str);
     }
 
@@ -844,6 +853,11 @@ public class Utils
         return targetRectTransform.InverseTransformPoint(worldPosition);
     }
 
+    public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform)
+    {
+        return targetRectTransform.TransformPoint(localPosition);
+    }
+
     /// <summary>
     /// renderTexture2texutre
     /// </summary>
@@ -857,6 +871,49 @@ public class Utils
         tex.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
         tex.Apply();
         return tex;
+    }
+
+
+
+    /// <summary>
+    /// 求等差数列和
+    /// </summary>
+    /// <param name="num"></param>
+    /// <returns></returns>
+    public static int SumArithmeticSeries(int num)
+    {
+        int sum = 0;
+
+        for (int i = 1; i <= num; i++)
+        {
+            sum += i;
+        }
+        return sum;
+    }
+
+
+    ///// <summary>
+    ///// 将DateTime类型转换为long类型
+    ///// </summary>
+    ///// <param name="dt">时间</param>
+    ///// <returns></returns>
+    //public static long ConvertDataTimeLong(System.DateTime dt)
+    //{
+    //    //dateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000
+    //    System.DateTime dtBase = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+    //    System.TimeSpan toNow = dt.ToUniversalTime().Subtract(dtBase);
+    //    long timeStamp = toNow.Ticks / 10000;
+    //    return timeStamp;
+    //}
+    /// <summary>
+    /// 将long类型转换为DateTime类型
+    /// </summary>
+    /// <param name="timeStamp">时间戳</param>
+    /// <returns></returns>
+    public static System.DateTime ConvertLongtoDataTime(long timeStamp)
+    {
+        System.DateTime dtBase = new System.DateTime(1970, 1, 1, 0, 0, 0);
+        return dtBase.AddSeconds(timeStamp);
     }
 }
 
