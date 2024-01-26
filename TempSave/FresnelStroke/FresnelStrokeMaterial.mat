@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5409482784629926390
+--- !u!114 &-5441198313966218312
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -23,41 +23,29 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Water
-  m_Shader: {fileID: -6465566751694194690, guid: 1f9524cd6602f0d41bdaf4256b7e96b7,
+  m_Name: FresnelStrokeMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: b26a7405c3fe9a9448da473fac9abc24,
     type: 3}
   m_ValidKeywords:
-  - _DISABLE_DECALS
   - _DISABLE_SSR_TRANSPARENT
-  - _ENABLE_FOG_ON_TRANSPARENT
-  - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
-  m_LightmapFlags: 0
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2225
   stringTagMap:
     MotionVector: User
-    RenderType: Transparent
   disabledShaderPasses:
-  - MOTIONVECTORS
+  - TransparentDepthPrepass
   - TransparentDepthPostpass
   - TransparentBackface
   - RayTracingPrepass
-  - TransparentDepthPrepass
+  - MOTIONVECTORS
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Wave:
-        m_Texture: {fileID: 2800000, guid: b1a0a5b098da6b8478310db7b90c04e0, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _WaveNormal:
-        m_Texture: {fileID: 2800000, guid: ce7690b5020525e4d9ab751d40717bb1, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _WaveNormal2:
-        m_Texture: {fileID: 2800000, guid: a53cf5449d11a15d1100a04b44295342, type: 3}
+    - _Texture:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -74,11 +62,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _: 0.525
     - _AddPrecomputedVelocity: 0
-    - _AllStep: 0.4
     - _AlphaCutoffEnable: 0
-    - _AlphaDstBlend: 10
+    - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
     - _AlphaToMask: 0
     - _AlphaToMaskInspectorValue: 0
@@ -86,46 +72,37 @@ Material:
     - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 2
     - _CullModeForward: 2
-    - _Deepth: 0.26
-    - _DeepthStrength: 0.24
     - _DepthOffsetEnable: 0
     - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 2
-    - _DstBlend: 10
+    - _DstBlend: 0
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
-    - _NoiseStep: -0.27
+    - _FresnelColorStrength: 97.95
+    - _FresnelColorWidth: 28.8
+    - _FresnelEmission: 1
+    - _FresnelEmissionMul: 1
     - _OpaqueCullMode: 2
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
-    - _RenderQueueType: 4
+    - _RenderQueueType: 1
     - _RequireSplitLighting: 0
-    - _Sea: 0.002
-    - _SeaWaveDeepth: -4
-    - _SeaWaveNoise: 4.23
-    - _SeaWaveNoiseScale: 392.8
-    - _SeaWaveNoiseStrength: 5.38
-    - _SeaWaveSmooth: 0
-    - _SeaWaveStep: 0.603
-    - _SeaWaveStrength: 0.18
-    - _Smooth: 1
     - _SrcBlend: 1
     - _StencilRef: 0
-    - _StencilRefDepth: 0
+    - _StencilRefDepth: 8
     - _StencilRefDistortionVec: 4
-    - _StencilRefGBuffer: 2
-    - _StencilRefMV: 32
+    - _StencilRefGBuffer: 10
+    - _StencilRefMV: 40
     - _StencilWriteMask: 6
     - _StencilWriteMaskDepth: 8
     - _StencilWriteMaskDistortionVec: 4
     - _StencilWriteMaskGBuffer: 14
     - _StencilWriteMaskMV: 40
-    - _SupportDecals: 0
-    - _SurfaceType: 1
-    - _Test: 0.4
+    - _SupportDecals: 1
+    - _SurfaceType: 0
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
@@ -134,25 +111,13 @@ Material:
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UseShadowThreshold: 0
-    - _WaveNormalStrength: 0.3
-    - _WaveNormalStrength2: 0.3
-    - _WaveNormalValue: 1
-    - _WaveNormalbank: 0
-    - _ZTestDepthEqualForOpaque: 2
+    - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
-    - _ZTestTransparent: 2
-    - _ZWrite: 0
-    - __1: -0.53
-    - __2: 1
-    - __3: 0.9
-    - __4: 10
+    - _ZTestTransparent: 4
+    - _ZWrite: 1
     m_Colors:
-    - _DeepWaterColor: {r: 0.1424438, g: 0.83308107, b: 0.9150943, a: 0.5176471}
-    - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color_Stroke: {r: 1, g: 1, b: 1, a: 1}
+    - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SeaWaveColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShallowWaterColor: {r: 0.8915094, g: 0.9936182, b: 1, a: 0.20392157}
-    - _WaveNormalVector: {r: 5, g: 5, b: 0, a: 0}
-    - _WaveNormalVector_2: {r: 1, g: 1, b: 0, a: 0}
-    - __5: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

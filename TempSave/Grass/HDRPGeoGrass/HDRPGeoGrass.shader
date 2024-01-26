@@ -138,7 +138,7 @@ Shader "Unlit/HDRPGeoGrass"
 
                 float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
                 float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
-                float3 wind = normalize(float3(windSample.x, windSample.y, 0));
+                float3 wind = normalize(float3(windSample.x , windSample.y, 0));
                 float3x3 windRotation = AngleAxis3x3(UNITY_PI * windSample, wind);//·çÏòÐý×ª¾ØÕó
 
                 for(int i =0;i< _RandomGroupNum ;i++)
