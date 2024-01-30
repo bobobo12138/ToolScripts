@@ -13,7 +13,7 @@ public abstract class State_FSM_Basic<T>: State_FSM where T: IGFSM
 {
     protected T user;
 
-    protected State_FSM_Basic(T user)
+    public State_FSM_Basic(T user)
     {
         this.user = user;
     }
