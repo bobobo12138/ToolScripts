@@ -13,6 +13,8 @@ Shader "Unlit/HDRPGeoGrass"
         _BladeWidthRandom("Blade Width Random", Float) = 0.02
         _BladeHeight("Blade Height", Float) = 0.5//
         _BladeHeightRandom("Blade Height Random", Float) = 0.3
+        _BladeForward("Blade Forward Amount", Float) = 0.38     //叶细向前量
+        _BladeCurve("Blade Curvature Amount", Range(1, 4)) = 2  //叶细曲率量
 
         [Space(20)]
         _WindDistortionMap("Wind Distortion Map", 2D) = "white" {}
@@ -21,6 +23,8 @@ Shader "Unlit/HDRPGeoGrass"
 
         [Space(20)]
         _TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1
+
+
     }
     SubShader
     {
@@ -42,6 +46,9 @@ Shader "Unlit/HDRPGeoGrass"
 
             #include "Shaders/CustomTessellation.cginc"
             #include "UnityCG.cginc"
+
+
+            #define BLADE_SEGMENTS 3
             //struct vertexInput
             //{
             //	float4 vertex : POSITION;
@@ -79,13 +86,13 @@ Shader "Unlit/HDRPGeoGrass"
             float _BladeHeightRandom;	
             float _BladeWidth;
             float _BladeWidthRandom;
-
+            float _BladeForward;
+            float _BladeCurve;
 
             sampler2D _WindDistortionMap;
             float4 _WindDistortionMap_ST;
             float2 _WindFrequency;
             float _WindStrength;
-
 
             //vertexOutput vert (vertexInput v)
             //{
@@ -106,6 +113,16 @@ Shader "Unlit/HDRPGeoGrass"
                 o.uv = uv;
             	return o;
             }
+
+            geometryOutput GenerateGrassVertex(float3 vertexPosition, float width, float height, float forward, float2 uv, float3x3 transformMatrix)
+            {
+                //草网格生成
+            	float3 tangentPoint = float3(width, forward, height);
+            
+            	float3 localPosition = vertexPosition + mul(transformMatrix, tangentPoint);
+            	return VertexOutput(localPosition, uv);
+            }
+
             float rand(float3 co)
 			{
 				return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
@@ -127,6 +144,7 @@ Shader "Unlit/HDRPGeoGrass"
 					t * x * z - s * y, t * y * z + s * x, t * z * z + c
 				);
 			}
+            //[maxvertexcount(BLADE_SEGMENTS*2+1)]
             [maxvertexcount(120)]
             void geo(triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
@@ -141,10 +159,12 @@ Shader "Unlit/HDRPGeoGrass"
                 float3 wind = normalize(float3(windSample.x , windSample.y, 0));
                 float3x3 windRotation = AngleAxis3x3(UNITY_PI * windSample, wind);//风向旋转矩阵
 
+                //子集循环
                 for(int i =0;i< _RandomGroupNum ;i++)
                 {
                     float height = (rand(pos.zyx+i) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
                     float width = (rand(pos.xzy+i) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
+                    float forward = rand(pos.yyz) * _BladeForward;
                     //切线转局部矩阵
                     float3x3 tangentToLocal = float3x3(
                     	vTangent.x, vBinormal.x, vNormal.x,
@@ -157,13 +177,36 @@ Shader "Unlit/HDRPGeoGrass"
                     float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos+i) * 3.14 * 2, float3(0, 0, 1));
                     //切线矩阵乘以旋转矩阵得到transformationMatrix矩阵，之后再transformationMatrix矩阵*摇摆矩阵
                     float3x3 transformationMatrix = mul(mul(mul(tangentToLocal,windRotation), facingRotationMatrix), bendRotationMatrix);
+                    float3x3 transformationMatrixFacing = mul(tangentToLocal, facingRotationMatrix);
 
+                    //细分循环
+                    for (int j = 0; j < BLADE_SEGMENTS; j++)
+                    {
+                    	float t = j / (float)BLADE_SEGMENTS;
 
-                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(width, 0, 0)),float2(0.5,0)));
-                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1))+ mul(transformationMatrix, float3(-width, 0, 0)),float2(-0.5,0)));
-                    triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(0, 0, height)),float2(0,1)));
+                        //草叶细分
+                        float segmentHeight = height * t;
+                        float segmentWidth = width * (1 - t);
+                        float segmentForward = pow(t, _BladeCurve) * forward;
+
+                        float3x3 transformMatrix = j == 0 ? transformationMatrixFacing : transformationMatrix;
+
+                        //triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrixFacing, float3(width, 0, 0)),  float2(0.5,0)));
+                        //triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1))+ mul(transformationMatrixFacing,  float3(-width, 0, 0)), float2(-0.5,0)));
+                        //triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(0, 0, height)), float2(0,1)));
+
+                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                        segmentWidth, segmentHeight,segmentForward, float2(0, t), transformMatrix));
+                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                        -segmentWidth, segmentHeight,segmentForward, float2(1, t), transformMatrix));
+
+                    }
+                    triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                    0, height,forward, float2(0.5, 1), transformationMatrix));
+
                     triStream.RestartStrip();
                 }
+
 
             }
 
