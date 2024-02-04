@@ -195,13 +195,13 @@ Shader "Unlit/HDRPGeoGrass"
                         //triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1))+ mul(transformationMatrixFacing,  float3(-width, 0, 0)), float2(-0.5,0)));
                         //triStream.Append(VertexOutput(pos + float3(rand(pos*i),0,rand(pos*i+1)) + mul(transformationMatrix, float3(0, 0, height)), float2(0,1)));
 
-                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i*2)),
                         segmentWidth, segmentHeight,segmentForward, float2(0, t), transformMatrix));
-                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                        triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i*2)),
                         -segmentWidth, segmentHeight,segmentForward, float2(1, t), transformMatrix));
 
                     }
-                    triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i+1)),
+                    triStream.Append(GenerateGrassVertex(pos + float3(rand(pos*i),0,rand(pos*i*2)),
                     0, height,forward, float2(0.5, 1), transformationMatrix));
 
                     triStream.RestartStrip();
