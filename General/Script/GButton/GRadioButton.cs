@@ -1,19 +1,21 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 /// <summary>
-/// 暂时的单选项,单选框必须和装载同时出现,没有装载时只是个普通按钮
+/// 单选项,单选框必须和装载同时出现,没有装载时只是个普通按钮
 /// 注意按钮的子集有挡住它的图片（将子集图片射线检测关掉即可）
 /// 像使用按钮一样使用
 /// </summary>
 public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerClickHandler, IPointerUpHandler
 {
     //+=图省事，后续需要改为addlinsenter
-    public Action onSelected;//切换事件,使用+=
-    public Action onExit;//退出事件,使用+=
+    protected Action onSelected;//切换事件
+    protected Action onExit;//退出事件
+    protected Action onRepeatedSelected;//当重复选择发生时
     public GRadioButtonLoader gRadioButtonLoader;//指向的组，可拖动可代码赋值
 
     //单击与取消时的显示
@@ -33,7 +35,38 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public bool isSelected;
     [SerializeField]
     bool isAwakeInit = false;//是否awake初始化，建议手动调用init初始化
-    Transform aniTrans;
+
+
+    [Header("动画细节参数")]
+    [SerializeField]
+    bool isCustomTrans_Ani = false;
+    [Tooltip("自定义动画根节点；未赋值的话，默认会以transform为参数")]
+    [ShowIf("isCustomTrans_Ani", true)]
+    [SerializeField]
+    Transform _trans_Ani;
+    Transform trans_Ani
+    {
+        get
+        {
+            if (!isCustomTrans_Ani) return transform;
+            if (_trans_Ani == null) _trans_Ani = transform;
+            return _trans_Ani;
+        }
+        set
+        {
+            _trans_Ani = value;
+        }
+    }
+    [SerializeField]
+    [Range(0, 1)]
+    float aniScaleValue = 0.9f;//形变尺寸
+    float inc_AniScaleValue;//形变增量
+    const int aniStep = 5;
+
+    protected void Reset()
+    {
+        trans_Ani = transform;
+    }
 
     protected void Awake()
     {
@@ -45,20 +78,8 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     /// </summary>
     public virtual void Init()
     {
-        aniTrans = GetComponent<Transform>();
-
-        /// 本项目中单选框已经特化
-        /// 不再是+=，注意初始化问题
-        /// 主要原因是图片历史记录，建议将图片历史记录的radioButton独立出来，防止位置bug
-        onSelected += () =>
-        {
-            SetSelected();
-        };
-        onExit += () =>
-        {
-            SetExit();
-        };
-
+        inc_AniScaleValue = (1 - aniScaleValue) / aniStep;
+        RemoveAllAction();
         ///初始显示退出
         if (disTrans != null)
             disTrans.SetActive(true);
@@ -68,15 +89,49 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void RemoveAllAction()
     {
-        onSelected = () =>
-        {
-            SetSelected();
-        };
-        onExit = () =>
-        {
-            SetExit();
-        };
+        onSelected = null;
+        onExit = null;
+        onRepeatedSelected = null;
     }
+
+    public void AddListener_OnSelected(Action action,bool isRemoveLastAction = false)
+    {
+        if (isRemoveLastAction)
+        {
+            onSelected = action;
+        }
+        else
+        {
+            onSelected += action;
+        }
+    }
+
+    public void AddListener_OnExit(Action action, bool isRemoveLastAction = false)
+    {
+        if (isRemoveLastAction)
+        {
+            onExit = action;
+        }
+        else
+        {
+            onExit += action;
+        }
+    }
+
+    public void AddListener_OnRepeatedSelected(Action action, bool isRemoveLastAction = false)
+    {
+        if (isRemoveLastAction)
+        {
+            onRepeatedSelected = action;
+        }
+        else
+        {
+            onRepeatedSelected += action;
+        }
+    }
+
+
+
 
     /// <summary>
     /// 可主动调用的单击事件
@@ -85,7 +140,8 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (gRadioButtonLoader == null)
         {
-            onSelected();
+            onSelected?.Invoke();
+            SetSelected();
         }
         else
         {
@@ -93,16 +149,21 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             {
                 if (gRadioButtonLoader.last != null)
                 {
-                    gRadioButtonLoader.last.onExit();//执行组内上一个的exit
+                    gRadioButtonLoader.last.onExit?.Invoke();//执行组内上一个的exit
+                    gRadioButtonLoader.last.SetExit();
                 }
                 gRadioButtonLoader.last = this;
-                onSelected();
+                onSelected?.Invoke();
+                SetSelected();
+            }
+            else
+            {
+                onRepeatedSelected?.Invoke();//执行重复选择
             }
         }
     }
     /// <summary>
     /// 不调用onSelected事件的Click
-    /// 特殊方法，不应该放在这里边，后续采用继承
     /// </summary>
     public void Click_NoOnSelectedAction()
     {
@@ -116,7 +177,8 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             {
                 if (gRadioButtonLoader.last != null)
                 {
-                    gRadioButtonLoader.last.onExit();//执行组内上一个的exit
+                    gRadioButtonLoader.last.onExit?.Invoke();//执行组内上一个的exit
+                    gRadioButtonLoader.last.SetExit();
                 }
                 gRadioButtonLoader.last = this;
                 SetSelected();
@@ -125,21 +187,25 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     }
 
     /// <summary>
+    /// 强制点击
     /// </summary>
     public void Click_Force()
     {
         if (gRadioButtonLoader == null)
         {
-            onSelected();
+            onSelected?.Invoke();
+            SetSelected();
         }
         else
         {
             if (gRadioButtonLoader.last != null)
             {
-                gRadioButtonLoader.last.onExit();//执行组内上一个的exit
+                gRadioButtonLoader.last.onExit?.Invoke();//执行组内上一个的exit
+                gRadioButtonLoader.last.SetExit();
             }
             gRadioButtonLoader.last = this;
-            onSelected();
+            onSelected?.Invoke();
+            SetSelected();
         }
     }
 
@@ -228,11 +294,11 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     /// </summary>
     IEnumerator Ani_Down()
     {
-        int count = 5;
-        transform.localScale = Vector3.one;
+        int count = aniStep;
+        trans_Ani.localScale = Vector3.one;
         while (count > 0)
         {
-            transform.localScale -= Vector3.one * 0.02f;
+            trans_Ani.localScale -= Vector3.one * inc_AniScaleValue;
             count--;
             yield return 0;
         }
@@ -241,11 +307,11 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     IEnumerator Ani_Up()
     {
-        transform.localScale = Vector3.one * 0.9f;
-        int count = 5;
+        trans_Ani.localScale = Vector3.one * aniScaleValue;
+        int count = aniStep;
         while (count > 0)
         {
-            transform.localScale += Vector3.one * 0.02f;
+            trans_Ani.localScale += Vector3.one * inc_AniScaleValue;
             count--;
             yield return 0;
         }

@@ -1,4 +1,4 @@
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,7 +40,7 @@ public abstract class ChildPanelBase : GBaseMono
         if (uIFollowMouse != null)
         {
             ///子类需要为uIFollowMouse初始化，若需要使用的话
-            deChooseBG_Button.onSelected += () => { uIFollowMouse.PlaySetMin(); };
+            deChooseBG_Button.AddListener_OnSelected(uIFollowMouse.PlaySetMin);
             uIFollowMouse.AfterOffsetMax += AfterShowAni;
             uIFollowMouse.AfterOffsetMin += AfterHideAni;
             uIFollowMouse.AfterOffsetMin += () => { SetActive(false); };//若是 uIFollowMouse存在，动画会自动隐藏
@@ -100,7 +100,7 @@ public abstract class ChildPanelBase : GBaseMono
         {
             if (v is T) return v as T;
         }
-        Debug.LogError("未找到子面板" + nameof(T));
+        AprilDebug.LogError("未找到子面板" + nameof(T));
         return null;
     }
     public void AddChildPanel(ChildPanelBase _childPanelBase)

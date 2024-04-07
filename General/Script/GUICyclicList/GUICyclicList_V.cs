@@ -1,4 +1,4 @@
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -135,12 +135,12 @@ namespace General
             if (prefab_Item_ICyclicItem == null) prefab_Item_ICyclicItem = prefab_Item.GetComponent<ICyclicItem>();
             if (prefab_Item_ICyclicItem == null)
             {
-                Debug.LogError("错误，prefab未继承ICyclicItem");
+                AprilDebug.LogError("错误，prefab未继承ICyclicItem");
                 return;
             }
             rectTransform = GetComponent<RectTransform>();
             scrollRect = GetComponent<ScrollRect>();
-            if (scrollRect == null) Debug.LogError("需要放置于包含scrollRect的物体下");
+            if (scrollRect == null) AprilDebug.LogError("需要放置于包含scrollRect的物体下");
             Vector2 last = Vector2.zero;
             scrollRect.onValueChanged.AddListener((pos) =>
             {
@@ -191,7 +191,7 @@ namespace General
 
             if (num_H <= 0 || num_V <= 0)
             {
-                Debug.LogError("无法容纳任何item，会导致除数为0！");
+                AprilDebug.LogError("无法容纳任何item，会导致除数为0！");
                 return;
             }
 
@@ -225,7 +225,7 @@ namespace General
             endIndex = count - num_H;
             isLoad = true;
 
-            Debug.Log("初始化GUICyclicList");
+            AprilDebug.Log("初始化GUICyclicList");
         }
 
         protected virtual void OnRefresh()
@@ -255,9 +255,9 @@ namespace General
                 }
                 else
                 {
-                    //Debug.Log(i);
+                    //AprilDebug.Log(i);
                     v.Value.SetIndex(i);
-                    onExchange(v.Value, i);
+                    onExchange?.Invoke(v.Value, i);
                     v.Value.GetRectTransform().gameObject.SetActive(true);
                 }
                 i++;
@@ -301,7 +301,7 @@ namespace General
         /// </summary>
         void IsCyclicMove_Up()
         {
-            var limit = (int)transform.parent.TransformPoint
+            var limit = transform.parent.TransformPoint
                         (
                             new Vector3(0, rectTransform.localPosition.y - rectTransform.rect.height / 2 - itemSize.y / 2 - TB.y, 0)
                         ).y;
@@ -329,13 +329,13 @@ namespace General
                 itemDic[target + num_H].GetRectTransform().anchoredPosition.y + yincrement + spacing);
                 temp.GetRectTransform().gameObject.SetActive(true);
                 temp.SetIndex(target + i);
-                onExchange(temp, target + i);
+                onExchange?.Invoke(temp, target + i);
             }
 
             headIndex = target;
             endIndex = endIndex - num_H;
             RefreshSize(itemDic[endIndex].GetRectTransform());
-            //Debug.Log("向上移动");
+            //AprilDebug.Log("向上移动");
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace General
         /// </summary>
         void IsCyclicMove_Down()
         {
-            var limit = (int)transform.parent.TransformPoint
+            var limit = transform.parent.TransformPoint
                 (
                      new Vector3(0, rectTransform.localPosition.y + rectTransform.rect.height / 2 + itemSize.y / 2 + TB.x, 0)
             ).y;
@@ -379,14 +379,14 @@ namespace General
                 else
                 {
                     temp.SetIndex(target + i);
-                    onExchange(temp, target + i);
+                    onExchange?.Invoke(temp, target + i);
                     temp.GetRectTransform().gameObject.SetActive(true);
                 }
             }
             endIndex = target;
             headIndex = headIndex + num_H;
             RefreshSize(itemDic[endIndex].GetRectTransform());
-            //Debug.Log("向下移动");
+            //AprilDebug.Log("向下移动");
         }
 
         /// <summary>

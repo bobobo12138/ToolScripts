@@ -76,7 +76,7 @@ public class Utils
     {
         if (inputList == null || count <= 0 || count > inputList.Count)
         {
-            Debug.LogError("输入参数无效");
+            AprilDebug.LogError("输入参数无效");
             return null;
         }
 
@@ -99,18 +99,18 @@ public class Utils
 
 
 
-    /// <summary>
-    /// 屏幕坐标转3d
-    /// </summary>
-    /// <param name="vec2"></param>
-    /// <param name="z"></param>
-    /// <returns></returns>
-    public static Vector3 PointVec2ToVec3(Vector3 vec2, float z)
-    {
-        Vector3 world = new Vector3(vec2.x / Screen.width, vec2.y / Screen.height, z);
-        Vector3 world1 = Camera.main.ViewportToWorldPoint(new Vector3(world.x, world.y, world.z)); // 屏幕坐标转换成场景坐标
-        return world1;
-    }
+    ///// <summary>
+    ///// 屏幕坐标转3d
+    ///// </summary>
+    ///// <param name="vec2"></param>
+    ///// <param name="z"></param>
+    ///// <returns></returns>
+    //public static Vector3 PointVec2ToVec3(Vector3 vec2, float z)
+    //{
+    //    Vector3 world = new Vector3(vec2.x / Screen.width, vec2.y / Screen.height, z);
+    //    Vector3 world1 = Camera.main.ViewportToWorldPoint(new Vector3(world.x, world.y, world.z)); // 屏幕坐标转换成场景坐标
+    //    return world1;
+    //}
 
     /// <summary>
     /// 得到【屏幕外物体位置到屏幕中心的连线】与屏幕边界的交点，无死角。
@@ -358,7 +358,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载图片失败:" + imgPath + " / " + ex);
+            AprilDebug.LogError("加载图片失败:" + imgPath + " / " + ex);
         }
     }
 
@@ -372,7 +372,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载Mesh失败" + ex);
+            AprilDebug.LogError("加载Mesh失败" + ex);
         }
     }
 
@@ -386,7 +386,7 @@ public class Utils
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("加载Material失败" + ex);
+            AprilDebug.LogError("加载Material失败" + ex);
         }
     }
 
@@ -733,6 +733,25 @@ public class Utils
         }
     }
 
+    public static void MinTiled(RectTransform userRectTransform, Vector2 user, Vector2 max)
+    {
+        ///获取乘数
+        float mul = 1;
+        float x = max.x / user.x;
+        float y = max.y / user.y;
+
+        if (x >= y)
+        {
+            mul = y;
+        }
+        else
+        {
+            mul = x;
+        }
+        ///设置大小
+        userRectTransform.SetSizeWithCurrentAnchors(Axis.Horizontal, user.x * mul);
+        userRectTransform.SetSizeWithCurrentAnchors(Axis.Vertical, user.y * mul);
+    }
 
     /// <summary>
     /// 字符串转枚举
@@ -742,7 +761,7 @@ public class Utils
     /// <returns></returns>
     public static T ToEnum<T>(string str)
     {
-        Debug.Log(str);
+        AprilDebug.Log(str);
         return (T)System.Enum.Parse(typeof(T), str);
     }
 
@@ -853,10 +872,45 @@ public class Utils
         return targetRectTransform.InverseTransformPoint(worldPosition);
     }
 
+    /// <summary>
+    /// 本地转世界
+    /// </summary>
+    /// <param name="localPosition"></param>
+    /// <param name="targetRectTransform"></param>
+    /// <returns></returns>
     public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform)
     {
         return targetRectTransform.TransformPoint(localPosition);
     }
+
+
+    /// <summary>
+    /// 世界坐标转换为屏幕坐标
+    /// </summary>
+    /// <param name="worldPoint">屏幕坐标</param>
+    /// <returns></returns>
+    public static Vector2 WorldPointToScreenPoint(Vector3 worldPoint,Camera camera)
+    {
+        Vector2 screenPoint = camera.WorldToScreenPoint(worldPoint);
+        return screenPoint;
+    }
+
+    /// <summary>
+    /// 屏幕坐标转换为世界坐标
+    /// </summary>
+    /// <param name="screenPoint">屏幕坐标</param>
+    /// <param name="planeZ">距离摄像机 Z 平面的距离</param>
+    /// <returns></returns>
+    public static Vector3 ScreenPointToWorldPoint(Vector2 screenPoint, float planeZ, Camera camera)
+    {
+        Vector3 position = new Vector3(screenPoint.x, screenPoint.y, planeZ);
+        Vector3 worldPoint = camera.ScreenToWorldPoint(position);
+        return worldPoint;
+    }
+
+
+
+
 
     /// <summary>
     /// renderTexture2texutre
@@ -915,5 +969,41 @@ public class Utils
         System.DateTime dtBase = new System.DateTime(1970, 1, 1, 0, 0, 0);
         return dtBase.AddSeconds(timeStamp);
     }
+
+
+    public static int LayerMaskToLayer(LayerMask layerMask)
+    {
+        for (int i = 0; i < 32; i++)
+        {
+            if ((layerMask & (1 << i)) != 0)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
+    /// <summary>
+    /// 简单拆解十进制数字
+    /// 传入12345，传出[1,2,3,4,5]（列表）
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    public static List<int> SplitNumber(int number)
+    {
+        List<int> result = new List<int>();
+
+        while (number > 0)
+        {
+            int digit = number % 10;
+            result.Insert(0, digit); // 插入到列表的开头，保持顺序
+            number /= 10;
+        }
+
+        return result;
+    }
+
 }
 
