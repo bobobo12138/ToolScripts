@@ -29,8 +29,11 @@ public class GObjPool_WithPopList<T> where T : Component
     }
 
     /// <summary>
-    /// 父级，生成物，预生成数量
+    /// 初始
     /// </summary>
+    /// <param name="_parent">父级</param>
+    /// <param name="_spawnObj">生成物</param>
+    /// <param name="num">预生成数量</param>
     public GObjPool_WithPopList(Transform _parent, T _spawnObj, int num = 0)
     {
         parent = _parent;
@@ -45,6 +48,42 @@ public class GObjPool_WithPopList<T> where T : Component
         }
         prototype.gameObject.SetActive(false);//最后才将原型SetActive(false)否则会出现awake运行问题
     }
+
+
+    /// <summary>
+    /// 谨慎使用此构造函数，此函数会尝试回收_spawnObj
+    /// </summary>
+    /// <param name="_parent"></param>
+    /// <param name="_spawnObj"></param>
+    /// <param name="isRecycleSpawnObj">是否自动回收_spawnObj</param>
+    /// <param name="num"></param>
+    public GObjPool_WithPopList(Transform _parent, T _spawnObj, bool isRecycleSpawnObj, int num = 0)
+    {
+        parent = _parent;
+        prototype = GameObject.Instantiate(_spawnObj, parent);
+
+        prototype.name = prototype.name + "prototype";
+        for (int i = 0; i < num; i++)
+        {
+            var v = InstantiateObj();
+            pool.Push(v);
+            v.gameObject.SetActive(false);
+        }
+        prototype.gameObject.SetActive(false);
+
+        if (isRecycleSpawnObj)
+        {
+            //回收_spawnObj
+            if (_spawnObj is IObjInit)
+            {
+                //回收的_spawnObj若需要初始化也会将其初始化
+                var temp = _spawnObj as IObjInit;
+                temp.Init();
+            }
+            if (_spawnObj.gameObject.activeSelf) RecycleObj(_spawnObj);
+        }
+    }
+
     /// <summary>
     /// 获取一个对象
     /// </summary>
@@ -125,7 +164,7 @@ public class GObjPool_WithPopList<T> where T : Component
         else
         {
             //AprilDebug.LogWarning("cant get the prototype,is objpool init?(constructor)");
-            Debug.LogWarning("无法获得原型，对象池初始化否？");
+            AprilDebug.LogWarning("无法获得原型，对象池初始化否？");
             return null;
         }
 
