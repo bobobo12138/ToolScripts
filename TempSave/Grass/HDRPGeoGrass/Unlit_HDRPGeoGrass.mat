@@ -31,14 +31,17 @@ Material:
     m_Ints: []
     m_Floats:
     - _BendRotationRandom: 0
+    - _BladeCurve: 2
+    - _BladeForward: 0.5
     - _BladeHeight: 1
     - _BladeHeightRandom: 0.3
     - _BladeWidth: 0.08
     - _BladeWidthRandom: 0.02
-    - _RandomGroupNum: 3
+    - _RandomGroupNum: 2
     - _Tess: 2
     - _TessellationAmount: 1
     - _TessellationUniform: 3
+    - _Test: 0.92
     - _WindStrength: 0.2
     m_Colors:
     - _BottomColor: {r: 0.12507656, g: 0, b: 0.4245283, a: 1}
