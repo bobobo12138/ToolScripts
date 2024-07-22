@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// 通用泛型状态机_带出栈清单
-/// 待实测，建议是继承重写原始状态机
+/// 实测完毕，可以使用，但是由于使用了List类型的poplist，可能需要注意会有时间O问题
 /// </summary>
 public class GObjPool_WithPopList<T> where T : Component
 {
@@ -104,6 +104,13 @@ public class GObjPool_WithPopList<T> where T : Component
         obj.gameObject.SetActive(true);
         Expand_Get(obj);
         poplist.Add(obj);
+
+        //进行ReGet刷新，若继承了IObjReGet接口的话
+        if (obj is IObjReGet)
+        {
+            var temp = obj as IObjReGet;
+            temp.ObjReGet();
+        }
         return obj;
     }
 

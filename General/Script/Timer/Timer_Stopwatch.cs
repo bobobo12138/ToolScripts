@@ -5,6 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 秒表
+/// 计数并不精确
 /// </summary>
 public class Timer_Stopwatch
 {
@@ -31,7 +32,7 @@ public class Timer_Stopwatch
     {
         if (!isRun) return;
 
-        if (timer < 0)
+        if (timer <= 0)
         {
             ///触发回调-完成
             isRun = false;
@@ -48,5 +49,15 @@ public class Timer_Stopwatch
         onRestart?.Invoke();
     }
 
-    public void Stop() { isRun = false; }
+    //重置
+    public void Reset()
+    {
+        timer = 0;
+        Stop();
+    }
+
+    public void Stop()
+    {
+        isRun = false;
+    }
 }

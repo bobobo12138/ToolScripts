@@ -11,13 +11,13 @@ public class GImage_SizeAdaptive : MonoBehaviour
     [Header("是否SetNativeSize超出父级后才自适配")]
     public bool isSizeExceeds_SetNativeSize = false;
 
-    public Image image { get; protected set; }
+    Image image;
     RectTransform parent;
     RectTransform rectTransform;
     public void SetSprite(Sprite s)
     {
         if (parent == null) parent = transform.parent.GetComponent<RectTransform>();
-        if (image == null) image = GetComponent<Image>();
+        if (image == null) GetImage();
         rectTransform = transform.GetComponent<RectTransform>();
         //Canvas.ForceUpdateCanvases();
 
@@ -36,6 +36,12 @@ public class GImage_SizeAdaptive : MonoBehaviour
         {
             SizeAdaptive();
         }
+    }
+
+    public Image GetImage()
+    {
+        if (image == null) image = GetComponent<Image>();
+        return image;
     }
 
     private void Reset()
@@ -73,4 +79,7 @@ public class GImage_SizeAdaptive : MonoBehaviour
             image.rectTransform.SetSizeWithCurrentAnchors(Axis.Vertical, size.y);
         }
     }
+
+
+
 }

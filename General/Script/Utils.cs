@@ -1,4 +1,5 @@
 ﻿using LitJson;
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -99,18 +100,18 @@ public class Utils
 
 
 
-    ///// <summary>
-    ///// 屏幕坐标转3d
-    ///// </summary>
-    ///// <param name="vec2"></param>
-    ///// <param name="z"></param>
-    ///// <returns></returns>
-    //public static Vector3 PointVec2ToVec3(Vector3 vec2, float z)
-    //{
-    //    Vector3 world = new Vector3(vec2.x / Screen.width, vec2.y / Screen.height, z);
-    //    Vector3 world1 = Camera.main.ViewportToWorldPoint(new Vector3(world.x, world.y, world.z)); // 屏幕坐标转换成场景坐标
-    //    return world1;
-    //}
+    /// <summary>
+    /// 屏幕坐标转3d
+    /// </summary>
+    /// <param name="vec2"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>
+    public static Vector3 PointVec2ToVec3(Vector3 vec2, float z)
+    {
+        Vector3 world = new Vector3(vec2.x / Screen.width, vec2.y / Screen.height, z);
+        Vector3 world1 = Camera.main.ViewportToWorldPoint(new Vector3(world.x, world.y, world.z)); // 屏幕坐标转换成场景坐标
+        return world1;
+    }
 
     /// <summary>
     /// 得到【屏幕外物体位置到屏幕中心的连线】与屏幕边界的交点，无死角。
@@ -325,10 +326,10 @@ public class Utils
     /// 读取json
     /// </summary>
     /// <param name="jsonPath">json路径</param>
-    public static JsonReader ReadJsonData(string jsonPath)
+    public static LitJson.JsonReader ReadJsonData(string jsonPath)
     {
         StreamReader streamreader = new StreamReader(jsonPath);
-        JsonReader js = new JsonReader(streamreader);
+        LitJson.JsonReader js = new LitJson.JsonReader(streamreader);
         return js;
     }
 
@@ -342,52 +343,12 @@ public class Utils
         return buffer;
     }
 
-    /// <summary>
-    /// 从resources加载图片
-    /// </summary>
-    /// <param name="img"></param>
-    /// <param name="imgPath"></param>
-    public static void LoadImage(Image img, string imgPath)
+    public static GameObject CreateNewGameObject(Transform parent,string name)
     {
-        //把资源加载到内存中
-        Object Preb = Resources.Load(imgPath, typeof(Sprite));
-        try
-        {
-            Sprite tmpsprite = Object.Instantiate(Preb) as Sprite;
-            img.sprite = tmpsprite;
-        }
-        catch (System.Exception ex)
-        {
-            AprilDebug.LogError("加载图片失败:" + imgPath + " / " + ex);
-        }
-    }
-
-    public static void LoadMesh(SkinnedMeshRenderer skinnedMeshRenderer, string meshPath)
-    {
-        Object Preb = Resources.Load(meshPath, typeof(Mesh));
-        try
-        {
-            Mesh tmpMesh = Object.Instantiate(Preb) as Mesh;
-            skinnedMeshRenderer.sharedMesh = tmpMesh;
-        }
-        catch (System.Exception ex)
-        {
-            AprilDebug.LogError("加载Mesh失败" + ex);
-        }
-    }
-
-    public static void LoadMaterial(SkinnedMeshRenderer skinnedMeshRenderer, string materialPath)
-    {
-        Object Preb = Resources.Load(materialPath, typeof(Material));
-        try
-        {
-            Material tmpMaterial = Object.Instantiate(Preb) as Material;
-            skinnedMeshRenderer.material = tmpMaterial;
-        }
-        catch (System.Exception ex)
-        {
-            AprilDebug.LogError("加载Material失败" + ex);
-        }
+        GameObject temp = new GameObject(name);
+        temp.transform.parent = parent;
+        temp.transform.localPosition = Vector3.zero;
+        return temp;
     }
 
     /// <summary>
@@ -603,6 +564,16 @@ public class Utils
             ms.Close();
         }
         return (T)retval;
+    }
+    public static T DeepCopyByJsonSerialize<T>(T obj)
+    {
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+        string json = JsonConvert.SerializeObject(obj, settings);
+
+        return JsonConvert.DeserializeObject<T>(json, settings);
     }
 
 
@@ -877,40 +848,23 @@ public class Utils
     /// </summary>
     /// <param name="localPosition"></param>
     /// <param name="targetRectTransform"></param>
+    /// <param name="targetRectTransform">是否计算旋转，旋转也会影响局部坐标</param>
     /// <returns></returns>
-    public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform)
+    public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform,bool isCalRotate=false)
     {
-        return targetRectTransform.TransformPoint(localPosition);
+        if (isCalRotate)
+        {
+            return targetRectTransform.TransformPoint(localPosition);
+        }
+        else
+        {
+            var tempRotate = targetRectTransform.localEulerAngles;
+            targetRectTransform.localEulerAngles = Vector3.zero;
+            var pos = targetRectTransform.TransformPoint(localPosition);
+            targetRectTransform.localEulerAngles = tempRotate;
+            return pos;
+        }
     }
-
-
-    /// <summary>
-    /// 世界坐标转换为屏幕坐标
-    /// </summary>
-    /// <param name="worldPoint">屏幕坐标</param>
-    /// <returns></returns>
-    public static Vector2 WorldPointToScreenPoint(Vector3 worldPoint,Camera camera)
-    {
-        Vector2 screenPoint = camera.WorldToScreenPoint(worldPoint);
-        return screenPoint;
-    }
-
-    /// <summary>
-    /// 屏幕坐标转换为世界坐标
-    /// </summary>
-    /// <param name="screenPoint">屏幕坐标</param>
-    /// <param name="planeZ">距离摄像机 Z 平面的距离</param>
-    /// <returns></returns>
-    public static Vector3 ScreenPointToWorldPoint(Vector2 screenPoint, float planeZ, Camera camera)
-    {
-        Vector3 position = new Vector3(screenPoint.x, screenPoint.y, planeZ);
-        Vector3 worldPoint = camera.ScreenToWorldPoint(position);
-        return worldPoint;
-    }
-
-
-
-
 
     /// <summary>
     /// renderTexture2texutre
@@ -1005,5 +959,31 @@ public class Utils
         return result;
     }
 
+    /// <summary>
+    /// 归val化
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="minVal"></param>
+    /// <param name="maxVal"></param>
+    /// <returns></returns>
+    public static float Normalize(float val, float minVal, float maxVal)
+    {
+        return (val - minVal) / (maxVal - minVal);
+    }
+
+    /// <summary>
+    /// 获取当前本地时间戳
+    /// </summary>     
+    public static long GetCurrentTimestamp()
+    {
+        long t = GetTimestampFromDateTime(System.DateTime.Now);
+        return t;
+    }
+    public static long GetTimestampFromDateTime(System.DateTime dateTime)
+    {
+        System.TimeSpan ts = (dateTime - System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1)));
+        long t = (long)ts.TotalSeconds;
+        return t;
+    }
 }
 
