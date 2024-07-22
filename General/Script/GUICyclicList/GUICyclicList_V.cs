@@ -217,7 +217,7 @@ namespace General
                     tempItem.GetRectTransform().SetSizeWithCurrentAnchors(Axis.Vertical, itemSize.y);
                     tempItem.GetRectTransform().anchorMin = new Vector2(0.5f, 1f);//设置顶部锚点
                     tempItem.GetRectTransform().anchorMax = new Vector2(0.5f, 1f);
-                    RefreshSize(tempItem.GetRectTransform());
+                    RefreshSize_Force(tempItem.GetRectTransform());
                     itemDic.Add(i * num_H + j, tempItem);
                 }
             }
@@ -248,7 +248,7 @@ namespace General
                 v.Value.Refresh();
                 tempDic.Add(i, v.Value);
                 v.Value.GetRectTransform().anchoredPosition = new Vector2(GetIndexPosX((i % num_H) + 1), GetIndexPosY((i / num_H) + 1));
-                RefreshSize(v.Value.GetRectTransform());
+                RefreshSize_Force(v.Value.GetRectTransform());
                 if (i >= this.maxIndex)
                 {
                     v.Value.GetRectTransform().gameObject.SetActive(false);
@@ -415,6 +415,18 @@ namespace General
                 }
             }
 
+        }
+
+        /// <summary>
+        /// 强制刷新大小
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="isDown"></param>
+        protected void RefreshSize_Force(RectTransform rect)
+        {
+            if (!rect.gameObject.activeSelf) return;
+            var aimSize = Mathf.Abs(rect.anchoredPosition.y) + rect.rect.height / 2 + buttomSpacing;
+            scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, aimSize);
         }
 
         #endregion

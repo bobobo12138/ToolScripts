@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 继承此接口可以让对象池对实例化的对象进行初始化
-/// </summary>
-public interface IObjInit
-{
-    public void Init();
-}
+///// <summary>
+///// 继承此接口可以让对象池对实例化的对象进行初始化
+///// </summary>
+//public interface IObjInit
+//{
+//    public void Init();
+//}
 
 /// <summary>
 /// 通用对象池,T必须是MonoBehaviour子集
@@ -70,6 +70,13 @@ public class GObjPool<T> where T : Component
         var obj = pool.Pop();
         obj.gameObject.SetActive(true);
         Expand_Get(obj);
+
+        //进行ReGet刷新，若继承了IObjReGet接口的话
+        if (obj is IObjReGet)
+        {
+            var temp = obj as IObjReGet;
+            temp.ObjReGet();
+        }
         return obj;
     }
 
@@ -128,7 +135,7 @@ public class GObjPool<T> where T : Component
         else
         {
             //AprilDebug.LogWarning("cant get the prototype,is objpool init?(constructor)");
-            Debug.LogWarning("无法获得原型，对象池初始化否？");
+            AprilDebug.LogWarning("无法获得原型，对象池初始化否？");
             return null;
         }
 
