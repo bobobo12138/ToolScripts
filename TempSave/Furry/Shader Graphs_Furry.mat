@@ -48,11 +48,19 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BlendTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Diffuse:
         m_Texture: {fileID: 2800000, guid: d19680cd422524695938fbe55cc3b3bd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Fur_Mask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass_Mask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -74,10 +82,9 @@ Material:
     - _AlphaCutoffEnable: 0
     - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
-    - _AlphaToMask: 0
-    - _AlphaToMaskInspectorValue: 0
+    - _Blend: 1.1
     - _BlendMode: 0
-    - _Colorvaration: 61.31
+    - _Colorvaration: 0
     - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 0
     - _CullModeForward: 0
@@ -89,15 +96,25 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _ExcludeFromTUAndAA: 0
+    - _FurDrawY: -16.45
     - _Fur_Contrast: 1
-    - _Fur_Density: 5000
+    - _Fur_Density: 3000
     - _Fur_Dir: 0.2
     - _Fur_Factor: 50
-    - _Fur_H: 2
+    - _Fur_H: 3
     - _Fur_Move: 100
     - _Fur_Pow: 2
-    - _Fur_Size: 0
-    - _Fur_Width: 3
+    - _Fur_Size: 1
+    - _GrassDrawY: -12.5
+    - _Grass_Contrast: 1
+    - _Grass_Density: 2000
+    - _Grass_Dir: 0.2
+    - _Grass_Factor: 100
+    - _Grass_H: 3
+    - _Grass_Move: 100
+    - _Grass_Pow: 2
+    - _Grass_Size: 1
+    - _Grass_WaterWave_Strength: 0.2
     - _MaterialID: 1
     - _MaterialTypeMask: 2
     - _OpaqueCullMode: 2
@@ -107,7 +124,7 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
-    - _Smooth: 0
+    - _Smooth: 0.2
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
@@ -122,12 +139,12 @@ Material:
     - _SupportDecals: 1
     - _SurfaceType: 0
     - _TessellationBackFaceCullEpsilon: -0.25
-    - _TessellationFactorMaxDistance: 100
-    - _TessellationFactorMinDistance: 20
+    - _TessellationFactorMaxDistance: 160
+    - _TessellationFactorMinDistance: 10
     - _TessellationFactorTriangleSize: 30
     - _TessellationMaxDisplacement: 0.5
     - _TessellationMode: 0
-    - _TessellationShapeFactor: 0.75
+    - _TessellationShapeFactor: 0
     - _TransmissionEnable: 1
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
@@ -137,15 +154,19 @@ Material:
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UseShadowThreshold: 0
+    - _Win_Height: 0.16
     - _Win_Scale: 10
-    - _Win_Speed: 1
+    - _Win_Speed: 0.1
+    - _Win_Y_Move: 60
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
+    - _BlendCol: {r: 1, g: 0.95873106, b: 0.5424528, a: 1}
     - _Color_H: {r: 1, g: 1, b: 1, a: 1}
-    - _Color_L: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 1}
+    - _Color_L: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Win_Forward: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
