@@ -82,8 +82,17 @@ Material:
     - _AlphaCutoffEnable: 0
     - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
-    - _Blend: 1.1
+    - _Blend: 1
+    - _BlendCutMax: 0.68
     - _BlendMode: 0
+    - _BlendNoiseScale: 500
+    - _BlendNoiseStrength: 1
+    - _BlendNoiseY: -10.3
+    - _BlendScale: 100
+    - _BlendStrength: 100
+    - _BlendSub: 0.3
+    - _ColBlend: 1
+    - _Coloroffset: -1
     - _Colorvaration: 0
     - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 0
@@ -105,18 +114,21 @@ Material:
     - _Fur_Move: 100
     - _Fur_Pow: 2
     - _Fur_Size: 1
-    - _GrassDrawY: -12.5
+    - _GrassDrawY: -11
+    - _GrassNoiseScale: 50
+    - _GrassNoiseStrength: 0.6
     - _Grass_Contrast: 1
-    - _Grass_Density: 2000
+    - _Grass_Density: 1800
     - _Grass_Dir: 0.2
-    - _Grass_Factor: 100
-    - _Grass_H: 3
+    - _Grass_Factor: 52
+    - _Grass_H: 4
     - _Grass_Move: 100
-    - _Grass_Pow: 2
+    - _Grass_Pow: 1
     - _Grass_Size: 1
-    - _Grass_WaterWave_Strength: 0.2
+    - _Grass_WaterWave_Strength: 0.3
     - _MaterialID: 1
     - _MaterialTypeMask: 2
+    - _MeshBlend: 1
     - _OpaqueCullMode: 2
     - _RayTracing: 0
     - _ReceivesSSR: 1
@@ -138,10 +150,11 @@ Material:
     - _StencilWriteMaskMV: 41
     - _SupportDecals: 1
     - _SurfaceType: 0
+    - _TemBlend: 1
     - _TessellationBackFaceCullEpsilon: -0.25
-    - _TessellationFactorMaxDistance: 160
-    - _TessellationFactorMinDistance: 10
-    - _TessellationFactorTriangleSize: 30
+    - _TessellationFactorMaxDistance: 180
+    - _TessellationFactorMinDistance: 5
+    - _TessellationFactorTriangleSize: 35
     - _TessellationMaxDisplacement: 0.5
     - _TessellationMode: 0
     - _TessellationShapeFactor: 0
@@ -154,10 +167,10 @@ Material:
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UseShadowThreshold: 0
-    - _Win_Height: 0.16
+    - _Win_Height: 0.15
     - _Win_Scale: 10
     - _Win_Speed: 0.1
-    - _Win_Y_Move: 60
+    - _Win_Y_Move: 80
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
@@ -165,7 +178,7 @@ Material:
     m_Colors:
     - _BlendCol: {r: 1, g: 0.95873106, b: 0.5424528, a: 1}
     - _Color_H: {r: 1, g: 1, b: 1, a: 1}
-    - _Color_L: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
+    - _Color_L: {r: 0.8867924, g: 0.8867924, b: 0.8867924, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _Win_Forward: {r: 1, g: 1, b: 0, a: 0}
