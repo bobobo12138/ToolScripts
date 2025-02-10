@@ -1,7 +1,8 @@
 ﻿using LitJson;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -18,6 +19,13 @@ public class Utils
         public static WaitForSeconds waiteSecond3 = new WaitForSeconds(3);
     }
 
+    //可用于临时处理的temp数据容器
+    public static int tempInt;
+    public static float tempFloat;
+    public static Vector2 tempVector2;
+    public static Vector3 tempVector3;
+    public static List<int> tempInts = new List<int>();
+    public static HashSet<int> tempIntHash = new HashSet<int>();
 
     /// <summary>
     /// 随机整数 取不到max
@@ -77,7 +85,7 @@ public class Utils
     {
         if (inputList == null || count <= 0 || count > inputList.Count)
         {
-            AprilDebug.LogError("输入参数无效");
+            UnityEngine.Debug.LogError("输入参数无效");
             return null;
         }
 
@@ -343,7 +351,7 @@ public class Utils
         return buffer;
     }
 
-    public static GameObject CreateNewGameObject(Transform parent,string name)
+    public static GameObject CreateNewGameObject(Transform parent, string name)
     {
         GameObject temp = new GameObject(name);
         temp.transform.parent = parent;
@@ -497,6 +505,21 @@ public class Utils
         return false;
     }
 
+
+    public static (int pos, bool isGet) LuckDraw_WithPos(int numerator, int denominator)
+    {
+        if (numerator >= denominator) return (-1, true);
+
+        if (numerator <= 0) return (-1, false);
+
+        var random = GetRandom(1, denominator);
+        if (random <= numerator)//相当于1-100中取随机数
+        {
+            return (random, true);
+        }
+        return (random, false);
+    }
+
     /// <summary>
     /// 字符串转换为枚举
     /// </summary>
@@ -565,17 +588,16 @@ public class Utils
         }
         return (T)retval;
     }
-    public static T DeepCopyByJsonSerialize<T>(T obj)
-    {
-        JsonSerializerSettings settings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        };
-        string json = JsonConvert.SerializeObject(obj, settings);
+    //public static T DeepCopyByJsonSerialize<T>(T obj)
+    //{
+    //    JsonSerializerSettings settings = new JsonSerializerSettings
+    //    {
+    //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+    //    };
+    //    string json = JsonConvert.SerializeObject(obj, settings);
 
-        return JsonConvert.DeserializeObject<T>(json, settings);
-    }
-
+    //    return JsonConvert.DeserializeObject<T>(json, settings);
+    //}
 
     /// <summary>
     /// 求向量（1,0）旋转degrees度的坐标
@@ -732,7 +754,7 @@ public class Utils
     /// <returns></returns>
     public static T ToEnum<T>(string str)
     {
-        AprilDebug.Log(str);
+        UnityEngine.Debug.Log(str);
         return (T)System.Enum.Parse(typeof(T), str);
     }
 
@@ -850,7 +872,7 @@ public class Utils
     /// <param name="targetRectTransform"></param>
     /// <param name="targetRectTransform">是否计算旋转，旋转也会影响局部坐标</param>
     /// <returns></returns>
-    public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform,bool isCalRotate=false)
+    public static Vector3 ConvertLocalToWorld(Vector3 localPosition, Transform targetRectTransform, bool isCalRotate = false)
     {
         if (isCalRotate)
         {
@@ -938,6 +960,19 @@ public class Utils
         return -1;
     }
 
+    public static bool IsInLayerMask(GameObject obj, LayerMask layerMask)
+    {
+        // 根据Layer数值进行移位获得用于运算的Mask值
+        int objLayerMask = 1 << obj.layer;
+        return (layerMask.value & objLayerMask) > 0;
+    }
+
+    public static bool IsInLayerMask(LayerMask testMask, LayerMask layerMask)
+    {
+        // 根据Layer数值进行移位获得用于运算的Mask值
+        int objLayerMask = 1 << testMask;
+        return (layerMask.value & objLayerMask) > 0;
+    }
 
     /// <summary>
     /// 简单拆解十进制数字
@@ -985,5 +1020,59 @@ public class Utils
         long t = (long)ts.TotalSeconds;
         return t;
     }
+
+
+    /// <summary>
+    /// RaycastHit2D[]去重
+    /// 会排除rig为空的
+    /// 不要在异步中使用
+    /// </summary>
+    static HashSet<Rigidbody2D> deduplication_RaycastHit2DHash;
+    public static HashSet<Rigidbody2D> Deduplication_RaycastHit2D(RaycastHit2D[] array)
+    {
+        if (deduplication_RaycastHit2DHash == null)
+        {
+            deduplication_RaycastHit2DHash = new HashSet<Rigidbody2D>();
+        }
+        else
+        {
+            deduplication_RaycastHit2DHash.Clear();
+        }
+
+        foreach (var v in array)
+        {
+            if (v.rigidbody == null) continue;
+            if (deduplication_RaycastHit2DHash.Contains(v.rigidbody)) continue;
+            deduplication_RaycastHit2DHash.Add(v.rigidbody);
+        }
+
+        return deduplication_RaycastHit2DHash;
+    }
+
+
+    /// <summary>
+    /// 数字显示转换
+    /// </summary>
+    public static string FormatNumber(float number)
+    {
+        if (number < 1000)
+            return number.ToString("F1");
+
+        string[] units = { "", "K", "M", "B", "T" };
+        int unitIndex = 0;
+
+        while (number >= 1000 && unitIndex < units.Length - 1)
+        {
+            number /= 1000;
+            unitIndex++;
+        }
+
+        // 如果结果是整数，不显示小数点
+        if (Mathf.Abs(number - Mathf.Floor(number)) < 0.1)
+            return $"{Mathf.Floor(number)}{units[unitIndex]}";
+
+        return $"{number:F1}{units[unitIndex]}";
+    }
+
 }
 
