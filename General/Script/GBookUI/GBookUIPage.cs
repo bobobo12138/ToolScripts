@@ -95,7 +95,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
         else
         {
-            AprilDebug.LogWarning("这个界面没有btn_Back：" + transform.name);
+            Debug.LogWarning("这个界面没有btn_Back：" + transform.name);
         }
 
 
@@ -108,7 +108,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
         else
         {
-            AprilDebug.LogWarning("这个界面没有btn_Next：" + transform.name);
+            Debug.LogWarning("这个界面没有btn_Next：" + transform.name);
         }
 
         OnInit();
@@ -132,7 +132,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
             }
             Hide(order, resetPos);
             onPageEnd_Head?.Invoke(tempData);//没有last，说明是第一个，所以是头
-            AprilDebug.Log("没有上一个page");
+            Debug.Log("没有上一个page");
         });
     }
 
@@ -149,7 +149,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
             }
             Hide(order);
             onPageEnd_End?.Invoke(tempData);//没有next，说明是最后一个，所以是尾
-            AprilDebug.Log("没有下一个page");
+            Debug.Log("没有下一个page");
         });
     }
 
