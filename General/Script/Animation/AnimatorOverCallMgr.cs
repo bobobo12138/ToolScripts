@@ -158,7 +158,7 @@ public static class AnimatorExtend
         else
         {
             action?.Invoke();
-            AprilDebug.LogError("没有：" + name + "State");
+            Debug.LogError("没有：" + name + "State");
         }
     }
 
