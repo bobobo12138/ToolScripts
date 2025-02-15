@@ -100,7 +100,7 @@ public abstract class ChildPanel_UIFollow : GBaseMono
         {
             if (v is T) return v as T;
         }
-        AprilDebug.LogError("未找到子面板" + nameof(T));
+        Debug.LogError("未找到子面板" + nameof(T));
         return null;
     }
     public void AddChildPanel(ChildPanelBase _childPanelBase)

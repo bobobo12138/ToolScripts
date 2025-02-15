@@ -62,7 +62,7 @@ public class GBookUIContainer : MonoBehaviour
     {
         if (order < 0 || order >= gBookUIPages.Count)
         {
-            AprilDebug.LogError("跳转页数超出范围");
+            Debug.LogError("跳转页数超出范围");
             return;
         }
         gBookUIPages[order].Show(data, isAnime ? 0 : order);

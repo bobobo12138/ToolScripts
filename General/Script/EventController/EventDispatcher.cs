@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 事件派发器
 /// </summary>
-public class EventDispatcher : Game.UnitySingleton<EventDispatcher>
+public class EventDispatcher : UnitySingleton<EventDispatcher>
 {
     private EventController ec = new EventController();
 
