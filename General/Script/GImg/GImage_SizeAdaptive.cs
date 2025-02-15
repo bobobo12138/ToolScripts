@@ -46,7 +46,7 @@ public class GImage_SizeAdaptive : MonoBehaviour
 
     private void Reset()
     {
-        if (GetComponent<Image>() == null) { AprilDebug.LogError("添加Image组件！"); }
+        if (GetComponent<Image>() == null) { Debug.LogError("添加Image组件！"); }
     }
 
     void SizeAdaptive()
