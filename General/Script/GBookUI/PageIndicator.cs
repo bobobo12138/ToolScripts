@@ -28,8 +28,8 @@ public class PageIndicator : MonoBehaviour
 
     public void Init()
     {
-        pageIndicator_HightLightPool = new GObjPool_WithPopList<MonoBehaviour>(trans_pointParent, prefab_PageIndicator_HightLight);
-        pageIndicator_NormalPool = new GObjPool_WithPopList<MonoBehaviour>(trans_pointParent, prefab_PageIndicator_Normal);
+        pageIndicator_HightLightPool = new GObjPool_WithPopList<MonoBehaviour>(trans_pointParent, prefab_PageIndicator_HightLight, true);
+        pageIndicator_NormalPool = new GObjPool_WithPopList<MonoBehaviour>(trans_pointParent, prefab_PageIndicator_Normal, true);
     }
 
     /// <summary>

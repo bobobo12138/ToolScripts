@@ -3,7 +3,14 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+public enum Direction
+{
+    None,
+    Up,
+    Down,
+    Left,
+    Right
+}
 public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     const float speed = 0.3f;
@@ -11,7 +18,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
     [HideInInspector]
     public int order { get; private set; }//界面顺序优先级，判断动画是向左还是向右
     object tempData;     //需要进行传递的数据，为其赋值后，会在show时传入下一个界面
-    GBookUIContainer gBookUIContainer;
+    GBookUIContainer_New gBookUIContainer;
 
     Action<int> onPageChange;
     Action<int> onAfterPageChange;
@@ -24,9 +31,9 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
     protected Button btn_Next;
 
     [Header("上一个group")]
-    protected GBookUIPage lastPage;
+    protected GBookUIPage_New lastPage;
     [Header("下一个group")]
-    protected GBookUIPage nextPage;
+    protected GBookUIPage_New nextPage;
 
     RectTransform _rectTransform;
     protected RectTransform rectTransform
@@ -72,9 +79,9 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
     }
 
     public void InitSet
-        (int order, GBookUIContainer gBookUIContainer,
+        (int order, GBookUIContainer_New gBookUIContainer,
         Action<object> onPageEnd_Head, Action<object> onPageEnd_End, Action<int> onPageChange, Action<int> afterPageChange,
-        GBookUIPage lastPagw = null, GBookUIPage nextPage = null)
+        GBookUIPage_New lastPagw = null, GBookUIPage_New nextPage = null)
     {
 
         this.order = order;
@@ -95,7 +102,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
         else
         {
-            Debug.LogWarning("这个界面没有btn_Back：" + transform.name);
+            AprilDebug.LogWarning("这个界面没有btn_Back：" + transform.name);
         }
 
 
@@ -108,7 +115,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
         else
         {
-            Debug.LogWarning("这个界面没有btn_Next：" + transform.name);
+            AprilDebug.LogWarning("这个界面没有btn_Next：" + transform.name);
         }
 
         OnInit();
@@ -132,7 +139,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
             }
             Hide(order, resetPos);
             onPageEnd_Head?.Invoke(tempData);//没有last，说明是第一个，所以是头
-            Debug.Log("没有上一个page");
+            AprilDebug.Log("没有上一个page");
         });
     }
 
@@ -149,7 +156,7 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
             }
             Hide(order);
             onPageEnd_End?.Invoke(tempData);//没有next，说明是最后一个，所以是尾
-            Debug.Log("没有下一个page");
+            AprilDebug.Log("没有下一个page");
         });
     }
 
@@ -413,6 +420,5 @@ public abstract class GBookUIPage : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
 
     }
-
 
 }

@@ -11,7 +11,8 @@ using UnityEngine;
 [Serializable]
 public class GBookUIContainer : MonoBehaviour
 {
-    public int nowOrder { get; private set; }
+
+    public int nowOrder { get; private set; }//从0开始
     public int pageCount { get { return gBookUIPages.Count; } }
 
     Action<object> onPageEnd_Head;   //页面结束时_从首页结束的回调，参数就是当前页data
@@ -22,21 +23,24 @@ public class GBookUIContainer : MonoBehaviour
     [SerializeField]
     protected GameObject mask;//防止连续点击的遮罩
     [SerializeField]
-    protected List<GBookUIPage> gBookUIPages = new List<GBookUIPage>();
+    protected List<GBookUIPage_New> gBookUIPages = new List<GBookUIPage_New>();
 
     public void InitSet(Action<object> onPageEnd_Head = null, Action<object> onPageEnd_End = null, Action<int> onPageChange = null, Action<int> afterPageChange = null)
     {
         this.onPageEnd_Head += onPageEnd_Head;
         this.onPageEnd_End += onPageEnd_End;
 
-        this.onPageChange += onPageChange;
+        this.onPageChange += (page) =>
+        {
+            OnPageChange(page, onPageChange);
+        };
         this.afterPageChange += afterPageChange;
 
         for (int i = 0; i < gBookUIPages.Count; i++)
         {
             var last = i > 0 ? gBookUIPages[i - 1] : null;
             var next = i < gBookUIPages.Count - 1 ? gBookUIPages[i + 1] : null;
-            gBookUIPages[i].InitSet(i, this, this.onPageEnd_Head, this.onPageEnd_End, onPageChange, afterPageChange, last, next);
+            gBookUIPages[i].InitSet(i, this, this.onPageEnd_Head, this.onPageEnd_End, this.onPageChange, this.afterPageChange, last, next);
             gBookUIPages[i].ResetGroup();
         }
     }
@@ -62,7 +66,7 @@ public class GBookUIContainer : MonoBehaviour
     {
         if (order < 0 || order >= gBookUIPages.Count)
         {
-            Debug.LogError("跳转页数超出范围");
+            AprilDebug.LogError("跳转页数超出范围");
             return;
         }
         gBookUIPages[order].Show(data, isAnime ? 0 : order);
@@ -71,5 +75,16 @@ public class GBookUIContainer : MonoBehaviour
     public void ShowMask(bool isShow = true)
     {
         mask.SetActive(isShow);
+    }
+
+    public GBookUIPage_New GetPage(int order)
+    {
+        return gBookUIPages[order];
+    }
+
+    void OnPageChange(int page, Action<int> callback)
+    {
+        nowOrder = page;
+        callback?.Invoke(page);
     }
 }
