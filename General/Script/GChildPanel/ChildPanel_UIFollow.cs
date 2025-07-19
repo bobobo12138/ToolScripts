@@ -1,5 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -21,10 +20,8 @@ public abstract class ChildPanel_UIFollow : GBaseMono
     public bool isShow;
 
     public bool isPullDownPanel = false;
-    [EnableIf("isPullDownPanel", true)]
     [SerializeField]
     public UIFollowMouse uIFollowMouse;//跟随区域，要使用的话需要在Init中赋值,动画都是依托与此对象
-    [EnableIf("isPullDownPanel", true)]
     [SerializeField]
     protected GRadioButton deChooseBG_Button;//背景按钮
 

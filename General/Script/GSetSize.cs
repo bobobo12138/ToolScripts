@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +17,6 @@ public class GSetSize : MonoBehaviour
     bool isNotAnyDirection = true;//非任意方向
 
     [SerializeField]
-    [ShowIf("isNotAnyDirection")]
     Axis axis;
 
     [SerializeField]
