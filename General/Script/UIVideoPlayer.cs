@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,7 +27,6 @@ public class UIVideoPlayer : MonoBehaviour
     [SerializeField]
     bool isSlider = false;//是否有进度条
     [SerializeField]
-    [ShowIf("isSlider", true)]
     Slider slider;//可选的进度条
 
     #region 必选
@@ -53,10 +51,8 @@ public class UIVideoPlayer : MonoBehaviour
     CoverType coverType = CoverType.Image;
 
     [SerializeField]
-    [ShowIf("coverType", CoverType.Image)]
     Image coverImg;
     [SerializeField]
-    [ShowIf("coverType", CoverType.RawImage)]
     RawImage coverRawImage;//rawimg封面，后续需要拓展选择枚举，选择显示某一个
     [SerializeField]
     CanvasGroup coverParent;//封面的父物体，用于隐藏封面

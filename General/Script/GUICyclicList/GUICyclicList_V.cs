@@ -1,5 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,14 +39,14 @@ namespace General
         [HideInInspector]
         public int maxIndex;//最大数量
 
-        [InfoBox("若是同时勾选了自动计算数量与最大化尺寸，则会导致某行、列最大化且只有一个元素")]
+        //[InfoBox("若是同时勾选了自动计算数量与最大化尺寸，则会导致某行、列最大化且只有一个元素")]
         [Tooltip("勾选后num_H将失效")]
         public bool autoCalculateNum_H = false;//自动计算数量，勾选后,num_H将失效
         //[Tooltip("勾选后num_V将失效")]
         //public bool autoCalculateNum_V = false;//自动计算数量，勾选后,num_V将失效
         [Header("行数量")]
         [SerializeField]
-        [HideIf("autoCalculateNum_H", true)]
+        //[HideIf("autoCalculateNum_H", true)]
         public int num_H = 2;//行可以是自动计算
         int num_V = 2;       //列永远是自动计算
         [Header("缓冲区，建议1-3(若tb、lr较大，则依情况设置更大的缓冲区)")]
@@ -60,13 +59,13 @@ namespace General
 
 
         [Header("上下左右间隔")]
-        [SerializeField][BoxGroup("单元参数")] protected Vector2 LR = Vector2.zero;
-        [SerializeField][BoxGroup("单元参数")] protected Vector2 TB = Vector2.zero;
-        [SerializeField][BoxGroup("单元参数")] protected int spacing;
+        [SerializeField] protected Vector2 LR = Vector2.zero;
+        [SerializeField] protected Vector2 TB = Vector2.zero;
+        [SerializeField]protected int spacing;
         [Header("单元格大小")]
-        [SerializeField][BoxGroup("单元参数")] bool isControlChildWidth2Max = false;//是否控制子物体宽度至最大
+        [SerializeField] bool isControlChildWidth2Max = false;//是否控制子物体宽度至最大
         //[SerializeField][BoxGroup("单元参数")] bool isControlChildHigth2Max = false;//是否控制子物体宽度至最大
-        [SerializeField][BoxGroup("单元参数")] protected Vector2 itemSize;
+        [SerializeField] protected Vector2 itemSize;
         #endregion;
 
         protected bool isLoad = false;

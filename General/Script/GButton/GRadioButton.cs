@@ -1,5 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,7 +40,6 @@ public class GRadioButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField]
     bool isCustomTrans_Ani = false;
     [Tooltip("自定义动画根节点；未赋值的话，默认会以transform为参数")]
-    [ShowIf("isCustomTrans_Ani", true)]
     [SerializeField]
     Transform _trans_Ani;
     Transform trans_Ani

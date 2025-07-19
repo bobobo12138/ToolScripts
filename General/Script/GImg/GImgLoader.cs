@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,24 +16,20 @@ public class GImgLoader : MonoBehaviour
     [Header("是否自动回收(若赋值时rawImage有texture则回收上一个texture)")]
     bool isAutoRecycle = true;
 
-    [SerializeField][BoxGroup("isBtn_Cancel")] bool isBtn_Cancel = true;
-    [ShowIf("isBtn_Cancel")]
-    [SerializeField][BoxGroup("isBtn_Cancel")] Button btn_Cancel;
+    [SerializeField] bool isBtn_Cancel = true;
+    [SerializeField] Button btn_Cancel;
 
 
-    [SerializeField][BoxGroup("isCustomObject")] bool isCustomObject = true;
+    [SerializeField] bool isCustomObject = true;
     [Header("拥有/未拥有图片显示的obj，没有则保持为空")]
-    [EnableIf("isCustomObject", true)]
-    [SerializeField][BoxGroup("isCustomObject")] GameObject gameobject_Textured;
-    [EnableIf("isCustomObject", true)]
-    [SerializeField][BoxGroup("isCustomObject")] GameObject gameobject_Textureless;
+    [SerializeField]GameObject gameobject_Textured;
+    [SerializeField] GameObject gameobject_Textureless;
 
 
     [Header("是否自适应")]
     [Tooltip("rawImage的texture是否自适应，开启后会比例缩放texture，使其铺满rawImage")]
-    [SerializeField][BoxGroup("自适应")] bool isTextureAdaptive = false;
-    [ShowIf("isTextureAdaptive", true)]
-    [SerializeField][BoxGroup("自适应")] RectTransform textureParent;
+    [SerializeField]bool isTextureAdaptive = false;
+    [SerializeField] RectTransform textureParent;
 
     private void Awake()
     {
