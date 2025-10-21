@@ -2,11 +2,26 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering; // 需要引入这个命名空间
 
+/// <summary>
+/// rt作画控制器
+/// </summary>
 public class RTDrawingController : MonoBehaviour
 {
+    public string targetMatName = "";
+
+    ///brushSize的尺寸是基于areaSize的尺寸的，之后会画在rt上，rt再给maintexture
+    ///也就是说缩放maintexture所在物体不会影响brushSize在rt上的大小
     public Material brushMaterial;
     public float brushSize = 30f;
     public Vector3 areaSize = new Vector3(10, 2, 10);
+
+    // --- 新增的公共变量 ---
+    [Header("Fade Effect")]
+    public Material fadeMaterial; // 把你刚创建的 FadeMaterial 拖到这里
+    [Range(0.01f, 0.1f)]
+    public float fadeAmount = 0.01f; // 每帧变白的程度
+    public int refreshFrame = 5; // 每隔多少帧执行一次淡化
+    private int frameCounter = 0;
 
     [SerializeField]
     private List<GameObject> painter = new List<GameObject>();
@@ -16,15 +31,18 @@ public class RTDrawingController : MonoBehaviour
     private List<Vector2> pointsToDraw = new List<Vector2>();
 
     private CommandBuffer commandBuffer;
+    // 用于Blit的临时RT的ID
+    private int tempRT_id = Shader.PropertyToID("_TempFadeRT");
 
     void Start()
     {
         // 1. 创建RenderTexture
-        renderTexture = new RenderTexture(512, 512, 0, RenderTextureFormat.ARGB32);
+        renderTexture = new RenderTexture(2048, 2048, 0, RenderTextureFormat.ARGB32);
         renderTexture.Create();
 
         // 将RT应用到一个UI Image或场景中的物体上以供预览
-        GetComponent<Renderer>().material.mainTexture = renderTexture;
+        //GetComponent<Renderer>().material.mainTexture = renderTexture;
+        GetComponent<Renderer>().material.SetTexture(targetMatName, renderTexture);
 
         // 2. 将RT清空为白色 (使用CommandBuffer更可靠)
         ClearRenderTexture();
@@ -35,6 +53,9 @@ public class RTDrawingController : MonoBehaviour
         // 4. 设置CommandBuffer
         commandBuffer = new CommandBuffer();
         commandBuffer.name = "RT Drawing Buffer";
+
+        // 5. 将淡化速率参数传递给FadeMaterial
+        fadeMaterial.SetFloat("_FadeAmount", fadeAmount);
     }
 
     void Update()
@@ -67,6 +88,31 @@ public class RTDrawingController : MonoBehaviour
 
         // 1. 清空上一帧的命令
         commandBuffer.Clear();
+
+        if (frameCounter == refreshFrame)
+        {
+            // --- 1.2 新增的淡化步骤 ---
+            // 1.2.1向CommandBuffer申请一个与主RT相同规格的临时RT
+            commandBuffer.GetTemporaryRT(tempRT_id, renderTexture.descriptor);
+
+            // 1.2.2[Blit 1]: 读取 renderTexture, 执行 fadeMaterial, 结果写入 tempRT
+            commandBuffer.Blit(renderTexture, tempRT_id, fadeMaterial);
+
+            // 1.2.3[Blit 2]: 将 tempRT 的内容复制回 renderTexture
+            //    (现在 renderTexture 的内容就是淡化后的结果了)
+            commandBuffer.Blit(tempRT_id, renderTexture);
+
+            // 1.2.4释放临时RT
+            commandBuffer.ReleaseTemporaryRT(tempRT_id);
+            // --- 淡化步骤结束 ---
+
+            frameCounter = 0;
+        }
+        else
+        {
+            frameCounter++;
+        }
+
 
         // 2. 设置渲染目标
         commandBuffer.SetRenderTarget(renderTexture);
