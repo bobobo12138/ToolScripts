@@ -1,15 +1,22 @@
-Shader "Unlit/UnlitBrush"
+Shader "Unlit/UnlitBrush_Min" // 改个名字
 {
     Properties
     {
-        // 可以添加一个颜色属性，让笔刷颜色可配置
-        _Color ("Color", Color) = (0,0,0,1)
+        _Color ("Brush Target Color", Color) = (0,0,0,1)
     }
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         LOD 100
-        Blend SrcAlpha OneMinusSrcAlpha // 关键的混合模式
+        
+        // --- 这是关键改动 ---
+        // 告诉GPU使用“最小值”操作
+        BlendOp Min
+        // 告诉GPU源和目标都不要乘以任何alpha，直接比较
+        // Final = min(SrcColor * 1, DstColor * 1)
+        Blend One One 
+        // --- 结束改动 ---
+
         ZWrite Off
         Cull Off
 
@@ -51,10 +58,19 @@ Shader "Unlit/UnlitBrush"
                 float alpha = 1.0 - saturate(dist * 2.0);
 
                 // 使用 pow 使边缘更柔和
-                alpha = pow(alpha, 2.0);
+                alpha = pow(alpha, 0.1);
 
-                // 返回带透明度的颜色
-                return fixed4(_Color.rgb, alpha);
+                // --- 这是关键改动 ---
+                // 我们不再输出 (Color, alpha)
+                // 而是输出一个在 "白色" 和 "目标色" 之间插值的颜色
+                // alpha = 0 (边缘),   输出 (1,1,1) (白色)
+                // alpha = 1 (中心),   输出 _Color.rgb (黑色)
+                // lerp(a, b, t) = a * (1-t) + b * t
+                fixed3 outputColor = lerp(fixed3(1,1,1), _Color.rgb, alpha);
+
+                // Alpha通道设为1，因为它在 Blend One One 模式下不重要
+                return fixed4(outputColor, 1.0); 
+                // --- 结束改动 ---
             }
             ENDCG
         }
